@@ -10,6 +10,7 @@ CREATE TABLE user (
                        email VARCHAR(100) NOT NULL UNIQUE,
                        password VARCHAR(255) NOT NULL,
                        avatar_url VARCHAR(255),
+                        is_admin INT,
                        update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
