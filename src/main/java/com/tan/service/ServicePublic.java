@@ -1,6 +1,6 @@
 package com.tan.service;
 
-import com.tan.utils.EntityResult;
+import com.tan.entity.EntityResult;
 
 public interface ServicePublic {
     EntityResult sendEmailCode(String email);

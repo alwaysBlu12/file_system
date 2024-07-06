@@ -3,7 +3,7 @@ package com.tan.service.impl;
 import cn.hutool.core.util.RandomUtil;
 import com.tan.service.ServicePublic;
 import com.tan.utils.EntityResponseConstants;
-import com.tan.utils.EntityResult;
+import com.tan.entity.EntityResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;

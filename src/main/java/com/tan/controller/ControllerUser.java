@@ -3,7 +3,7 @@ package com.tan.controller;
 import com.tan.dto.LoginDTO;
 import com.tan.dto.RegisterDTO;
 import com.tan.service.ServiceUser;
-import com.tan.utils.EntityResult;
+import com.tan.entity.EntityResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

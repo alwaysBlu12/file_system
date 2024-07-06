@@ -1,4 +1,4 @@
-package com.tan.utils;
+package com.tan.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

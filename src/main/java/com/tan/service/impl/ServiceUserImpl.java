@@ -5,17 +5,15 @@ import com.tan.dto.RegisterDTO;
 import com.tan.entity.EntityUser;
 import com.tan.mapper.MapperUser;
 import com.tan.service.ServiceUser;
-import com.tan.utils.EntityResult;
+import com.tan.entity.EntityResult;
 import com.tan.utils.JwtUtils;
 import com.tan.utils.Md5Util;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Mapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -63,7 +61,7 @@ public class ServiceUserImpl implements ServiceUser {
         String token = JwtUtils.generateJwt(claims);
 
         //存入redis
-        stringRedisTemplate.opsForValue().set(username+":token", token);
+        stringRedisTemplate.opsForValue().set(username, token);
 
         return EntityResult.success(token);
     }
