@@ -8,4 +8,8 @@ public interface ServiceUser {
     EntityResult login(LoginDTO loginDTO);
 
     EntityResult register(RegisterDTO registerDTO);
+
+    EntityResult getUserInfo();
+
+    EntityResult list();
 }

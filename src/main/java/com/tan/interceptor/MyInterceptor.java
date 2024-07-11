@@ -20,14 +20,20 @@ import java.util.Objects;
 @Component
 public class MyInterceptor implements HandlerInterceptor {
 
-    @Autowired
+    private MapperUser mapperUser;
     private StringRedisTemplate stringRedisTemplate;
 
-    @Autowired
-    private MapperUser mapperUser;
+    public MyInterceptor(MapperUser mapperUser, StringRedisTemplate stringRedisTemplate) {
+        this.mapperUser = mapperUser;
+        this.stringRedisTemplate = stringRedisTemplate;
+    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+
+        log.info("'拦截到了");
+
         //获取请求头的token
         String token = request.getHeader("Authorization");
         //判断token
@@ -39,9 +45,9 @@ public class MyInterceptor implements HandlerInterceptor {
         //解析token
         Claims claims = JwtUtils.parseJWT(token);
         String username = (String) claims.get("username");
-
         //获取redis的token
         String redisToken = stringRedisTemplate.opsForValue().get(username);
+
         if(!redisToken.equals(token)||redisToken==null){
             response.setStatus(401);
             throw new RuntimeException("当前token失效");

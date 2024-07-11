@@ -8,5 +8,6 @@ public class RegisterDTO {
     private String password;
     private String rePassword;
     private String email;
+    //这是邮箱验证码
     private String code;
 }

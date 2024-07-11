@@ -6,5 +6,6 @@ import lombok.Data;
 public class LoginDTO {
     private String username;
     private String password;
-    private String imageCode;
+    //这是图形验证码
+    private String code;
 }

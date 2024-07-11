@@ -4,6 +4,7 @@ import cn.hutool.core.util.RandomUtil;
 import com.tan.service.ServicePublic;
 import com.tan.utils.EntityResponseConstants;
 import com.tan.entity.EntityResult;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
@@ -11,7 +12,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
-
+@Slf4j
 @Service
 public class ServicePublicImpl implements ServicePublic {
 
@@ -46,6 +47,7 @@ public class ServicePublicImpl implements ServicePublic {
             return EntityResult.success(EntityResponseConstants.SEND_SUCCESS+",验证码是:"+code);
         }
         catch (Exception e){
+            e.printStackTrace();
             return EntityResult.error(EntityResponseConstants.SEND_FAIL);
         }
     }

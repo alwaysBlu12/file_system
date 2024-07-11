@@ -7,7 +7,7 @@ use datebase;
 CREATE TABLE user (
                        user_id INT AUTO_INCREMENT PRIMARY KEY,
                        username VARCHAR(50) NOT NULL,
-                       email VARCHAR(100) NOT NULL UNIQUE,
+                       email VARCHAR(100) NOT NULL UNIQUE,//为了测试,这里是不唯一的
                        password VARCHAR(255) NOT NULL,
                        avatar_url VARCHAR(255),
                         is_admin INT,

@@ -30,6 +30,7 @@ public class ControllerPublic {
         String captcha = generateRandomCaptcha();
         log.info("captcha:{}", captcha);
         // 将验证码存入Redis，设置过期时间（例如5分钟）
+        //这里存入验证码一样,多人使用的时候可能会出错,到时候随机数字或者用户信息来解决
         redisTemplate.opsForValue().set("captcha", captcha, 2, TimeUnit.MINUTES);
         // 返回生成的验证码给前端，这里可以返回图形验证码的Base64编码字符串或其他形式
         return EntityResult.success(captcha);

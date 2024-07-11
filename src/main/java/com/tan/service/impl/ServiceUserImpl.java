@@ -8,15 +8,16 @@ import com.tan.service.ServiceUser;
 import com.tan.entity.EntityResult;
 import com.tan.utils.JwtUtils;
 import com.tan.utils.Md5Util;
+import com.tan.utils.UserThreadLocal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
 @Slf4j
 @Service
 public class ServiceUserImpl implements ServiceUser {
@@ -47,7 +48,7 @@ public class ServiceUserImpl implements ServiceUser {
         //验证码是否正确
         String captcha = stringRedisTemplate.opsForValue().get("captcha");
 
-        if (!captcha.equals(loginDTO.getImageCode())){
+        if (!captcha.equals(loginDTO.getCode())){
             return EntityResult.error("验证码错误");
         }
 
@@ -61,7 +62,7 @@ public class ServiceUserImpl implements ServiceUser {
         String token = JwtUtils.generateJwt(claims);
 
         //存入redis
-        stringRedisTemplate.opsForValue().set(username, token);
+        stringRedisTemplate.opsForValue().set(username, token,1000, TimeUnit.MINUTES);
 
         return EntityResult.success(token);
     }
@@ -74,6 +75,7 @@ public class ServiceUserImpl implements ServiceUser {
     @Override
     public EntityResult register(RegisterDTO registerDTO) {
 
+
         String username = registerDTO.getUsername();
 
         //查询该用户
@@ -82,7 +84,7 @@ public class ServiceUserImpl implements ServiceUser {
         if (Objects.nonNull(user)){
             return EntityResult.error("当前用户已经存在");
         }
-        
+
         //两次密码
         if (!registerDTO.getPassword().equals(registerDTO.getRePassword())){
             return EntityResult.error("两次密码不一致");
@@ -114,5 +116,35 @@ public class ServiceUserImpl implements ServiceUser {
 
         return EntityResult.success();
 
+    }
+
+    /**
+     * 获取用户信息
+     * @return
+     */
+    @Override
+    public EntityResult getUserInfo() {
+        //直接返回userHold
+        EntityUser user = UserThreadLocal.get();
+        return EntityResult.success(user);
+    }
+
+    /**
+     * 获取用户列表
+     * @return
+     */
+    @Override
+    public EntityResult list() {
+
+        //管理员可以看到全部的用户-->普通用户智能看到自己的
+        EntityUser user = UserThreadLocal.get();
+        if(user.getIsAdmin().equals(1)){
+            log.info("is_admin:{}",user.getIsAdmin());
+            return EntityResult.success(mapperUser.list());
+        }else{
+            List<EntityUser> list = new ArrayList<>();
+            list.add(user);
+            return EntityResult.success(list);
+        }
     }
 }

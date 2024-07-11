@@ -1,10 +1,13 @@
 package com.tan.mapper;
 
+import com.tan.entity.EntityResult;
 import com.tan.entity.EntityUser;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.List;
 
 @Mapper
 public interface MapperUser {
@@ -14,4 +17,7 @@ public interface MapperUser {
 
     @Select("select * from user where username = #{username}")
     EntityUser getUserByUsername(String username);
+
+    @Select("select * from user")
+    List<EntityUser> list();
 }
