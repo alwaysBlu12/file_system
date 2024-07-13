@@ -36,25 +36,30 @@ public class MyInterceptor implements HandlerInterceptor {
 
         //获取请求头的token
         String token = request.getHeader("Authorization");
+        log.info("token:{}", token);
         //判断token
         if(Objects.isNull(token)){
+            System.out.println("当前token为空");
             response.setStatus(401);
             throw new RuntimeException("当前未登录");
         }
 
         //解析token
         Claims claims = JwtUtils.parseJWT(token);
-        String username = (String) claims.get("username");
+        String userId = (String) claims.get("userId");
         //获取redis的token
-        String redisToken = stringRedisTemplate.opsForValue().get(username);
+        String redisToken = stringRedisTemplate.opsForValue().get("user"+userId);
 
+        log.info("redisToken:{}", redisToken);
         if(!redisToken.equals(token)||redisToken==null){
             response.setStatus(401);
             throw new RuntimeException("当前token失效");
         }
 
         //获取当前用户
-        EntityUser user = mapperUser.getUserByUsername(username);
+        //修改当前账户名字后,这里就搜不到了
+        EntityUser user = mapperUser.getUserById(Integer.valueOf(userId));
+        log.info("user:{}", user);
         UserThreadLocal.put(user);
         return true;
     }

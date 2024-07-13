@@ -2,6 +2,8 @@ package com.tan.controller;
 
 import com.tan.dto.LoginDTO;
 import com.tan.dto.RegisterDTO;
+import com.tan.dto.SaveUserDTO;
+import com.tan.dto.UpdateUserDTO;
 import com.tan.entity.EntityUser;
 import com.tan.service.ServiceUser;
 import com.tan.entity.EntityResult;
@@ -61,5 +63,44 @@ public class ControllerUser {
         return serviceUser.list();
     }
 
+    /**
+     * 添加用户-->大部分默认
+     * @param saveUserDTO
+     * @return
+     */
+    @PostMapping
+    public EntityResult save(@RequestBody SaveUserDTO saveUserDTO){
+        return serviceUser.save(saveUserDTO);
+    }
+
+    /**
+     * 更新用户信息
+     * @param updateUserDTO
+     * @return
+     */
+    @PutMapping
+    public EntityResult update(@RequestBody UpdateUserDTO updateUserDTO){
+        return serviceUser.update(updateUserDTO);
+    }
+
+    /**
+     * 删除用户
+     * @param id
+     * @return
+     */
+    @DeleteMapping
+    public EntityResult delete(Integer id){
+        return serviceUser.deleteById(id);
+    }
+
+
+    /**
+     * 退出登录
+     * @return
+     */
+    @PostMapping("/logout")
+    public EntityResult logout(){
+        return serviceUser.logout();
+    }
 
 }

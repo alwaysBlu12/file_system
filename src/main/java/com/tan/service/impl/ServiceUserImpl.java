@@ -2,6 +2,8 @@ package com.tan.service.impl;
 
 import com.tan.dto.LoginDTO;
 import com.tan.dto.RegisterDTO;
+import com.tan.dto.SaveUserDTO;
+import com.tan.dto.UpdateUserDTO;
 import com.tan.entity.EntityUser;
 import com.tan.mapper.MapperUser;
 import com.tan.service.ServiceUser;
@@ -14,6 +16,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -62,7 +65,7 @@ public class ServiceUserImpl implements ServiceUser {
         String token = JwtUtils.generateJwt(claims);
 
         //存入redis
-        stringRedisTemplate.opsForValue().set(username, token,1000, TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set("user"+user.getUserId(), token,1000, TimeUnit.MINUTES);
 
         return EntityResult.success(token);
     }
@@ -135,16 +138,92 @@ public class ServiceUserImpl implements ServiceUser {
      */
     @Override
     public EntityResult list() {
-
         //管理员可以看到全部的用户-->普通用户智能看到自己的
         EntityUser user = UserThreadLocal.get();
-        if(user.getIsAdmin().equals(1)){
-            log.info("is_admin:{}",user.getIsAdmin());
-            return EntityResult.success(mapperUser.list());
+//        if(user.getIsAdmin().equals(1)){
+//            log.info("is_admin:{}",user.getIsAdmin());
+//            return EntityResult.success(mapperUser.list());
+//        }else{
+//            List<EntityUser> list = new ArrayList<>();
+//            list.add(user);
+//            return EntityResult.success(list);
+//        }
+        return EntityResult.success(mapperUser.list());
+    }
+
+    /**
+     * 添加用户
+     * @param saveUserDTO
+     * @return
+     */
+    @Override
+    public EntityResult save(@RequestBody SaveUserDTO saveUserDTO) {
+        mapperUser.add(saveUserDTO);
+        return EntityResult.success();
+    }
+
+    /**
+     * 更新用户信息
+     * @param updateUserDTO
+     * @return
+     */
+    @Override
+    public EntityResult update(UpdateUserDTO updateUserDTO) {
+        log.info("updateUserDTO:{}",updateUserDTO);
+        mapperUser.update(updateUserDTO);
+        return EntityResult.success();
+    }
+
+    /**
+     * 删除用户
+     *
+     *
+     * 管理员能删所有的
+     *
+     * 普通用户只能删除自己的
+     * @param id
+     * @return
+     */
+    @Override
+    public EntityResult deleteById(Integer id) {
+
+        //获取当前用户id
+        EntityUser user = UserThreadLocal.get();
+        Integer userId = user.getUserId();
+
+
+        //判断是否是管理员
+        Integer isAdmin = user.getIsAdmin();
+
+        if(isAdmin.equals(1)||userId.equals(id)){
+            //删除用户还得把redis信息删除了
+            String redisToken = stringRedisTemplate.opsForValue().get("user" + id);
+            if(redisToken != null){
+                stringRedisTemplate.delete("user"+id);
+                mapperUser.delete(id);
+                return EntityResult.success("none");
+            }
+            mapperUser.delete(id);
+            return EntityResult.success();
         }else{
-            List<EntityUser> list = new ArrayList<>();
-            list.add(user);
-            return EntityResult.success(list);
+            return EntityResult.error("没有权限");
         }
+
+
+    }
+
+    /**
+     * 退出登录
+     * @return
+     */
+    @Override
+    public EntityResult logout() {
+        //获取当前用户
+        EntityUser user = UserThreadLocal.get();
+        //删除redis
+        stringRedisTemplate.delete("user"+user.getUserId());
+
+        UserThreadLocal.remove();
+        return EntityResult.success();
     }
 }

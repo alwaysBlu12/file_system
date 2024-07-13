@@ -1,11 +1,9 @@
 package com.tan.mapper;
 
-import com.tan.entity.EntityResult;
+import com.tan.dto.SaveUserDTO;
+import com.tan.dto.UpdateUserDTO;
 import com.tan.entity.EntityUser;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -20,4 +18,15 @@ public interface MapperUser {
 
     @Select("select * from user")
     List<EntityUser> list();
+
+    @Insert("insert into user (username,email,update_time) value (#{username},#{email},now())")
+    void add(SaveUserDTO saveUserDTO);
+
+    @Update("update user set username=#{username},email=#{email},update_time=now() where user_id = #{userId}")
+    void update(UpdateUserDTO updateUserDTO);
+
+    @Select("select * from user where user_id=#{userId}")
+    EntityUser getUserById(Integer userId);
+    @Delete("delete from user where user_id=#{id}")
+    void delete(Integer id);
 }
