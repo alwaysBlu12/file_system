@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EntityResult {
+public class EntityResult<T> {
     /**
      * 响应码  成功:200   失败:400
      */
@@ -26,14 +26,14 @@ public class EntityResult {
     /**
      * 返回的数据
      */
-    private Object data;
+    private T data;
 
     //增删改 成功响应
     public static EntityResult success(){
         return new EntityResult(200,"success",null);
     }
     //查询 成功响应
-    public static EntityResult success(Object data){
+    public static <E>EntityResult<E> success(E data){
         return new EntityResult(200,"success",data);
     }
     //失败响应
