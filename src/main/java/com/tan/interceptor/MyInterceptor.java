@@ -16,6 +16,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Objects;
 
+import static com.tan.utils.RedisConstants.REDIS_USER;
+
 @Slf4j
 @Component
 public class MyInterceptor implements HandlerInterceptor {
@@ -48,7 +50,7 @@ public class MyInterceptor implements HandlerInterceptor {
         Claims claims = JwtUtils.parseJWT(token);
         String userId = (String) claims.get("userId");
         //获取redis的token
-        String redisToken = stringRedisTemplate.opsForValue().get("user"+userId);
+        String redisToken = stringRedisTemplate.opsForValue().get(REDIS_USER+userId);
 
         log.info("redisToken:{}", redisToken);
         if(!redisToken.equals(token)||redisToken==null){

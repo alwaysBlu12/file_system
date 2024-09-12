@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.tan.utils.RedisConstants.REDIS_USER;
+
 @Slf4j
 @Service
 public class ServiceUserImpl implements ServiceUser {
@@ -65,7 +67,7 @@ public class ServiceUserImpl implements ServiceUser {
         String token = JwtUtils.generateJwt(claims);
 
         //存入redis
-        stringRedisTemplate.opsForValue().set("user"+user.getUserId(), token,1000, TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set(REDIS_USER + user.getUserId(), token,1000, TimeUnit.MINUTES);
 
         return EntityResult.success(token);
     }
@@ -138,7 +140,7 @@ public class ServiceUserImpl implements ServiceUser {
      */
     @Override
     public EntityResult list() {
-        //管理员可以看到全部的用户-->普通用户智能看到自己的
+        //管理员可以看到全部的用户-->普通用户只能看到自己的
         EntityUser user = UserThreadLocal.get();
 //        if(user.getIsAdmin().equals(1)){
 //            log.info("is_admin:{}",user.getIsAdmin());
@@ -169,7 +171,6 @@ public class ServiceUserImpl implements ServiceUser {
      */
     @Override
     public EntityResult update(UpdateUserDTO updateUserDTO) {
-        log.info("updateUserDTO:{}",updateUserDTO);
         mapperUser.update(updateUserDTO);
         return EntityResult.success();
     }
@@ -199,7 +200,7 @@ public class ServiceUserImpl implements ServiceUser {
             //删除用户还得把redis信息删除了
             String redisToken = stringRedisTemplate.opsForValue().get("user" + id);
             if(redisToken != null){
-                stringRedisTemplate.delete("user"+id);
+                stringRedisTemplate.delete(REDIS_USER+id);
                 mapperUser.delete(id);
                 return EntityResult.success("none");
             }
@@ -221,7 +222,8 @@ public class ServiceUserImpl implements ServiceUser {
         //获取当前用户
         EntityUser user = UserThreadLocal.get();
         //删除redis
-        stringRedisTemplate.delete("user"+user.getUserId());
+        log.info("rediscode:{}",REDIS_USER+user.getUserId());
+        stringRedisTemplate.delete(REDIS_USER+user.getUserId());
 
         UserThreadLocal.remove();
         return EntityResult.success();

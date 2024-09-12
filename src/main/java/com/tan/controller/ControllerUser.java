@@ -11,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.parser.Entity;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -29,7 +27,6 @@ public class ControllerUser {
      */
     @PostMapping("/register")
     public EntityResult register(@RequestBody RegisterDTO registerDTO) {
-        log.info("registerDTO:{}", registerDTO);
         return serviceUser.register(registerDTO);
     }
 
@@ -41,7 +38,6 @@ public class ControllerUser {
      */
     @PostMapping("/login")
     public EntityResult login(@RequestBody LoginDTO loginDTO){
-        log.info("loginDTO:{}", loginDTO);
         return serviceUser.login(loginDTO);
     }
 

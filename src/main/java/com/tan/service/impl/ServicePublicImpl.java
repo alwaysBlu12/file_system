@@ -1,9 +1,12 @@
 package com.tan.service.impl;
 
+import cn.hutool.captcha.CaptchaUtil;
+import cn.hutool.captcha.LineCaptcha;
 import cn.hutool.core.util.RandomUtil;
 import com.tan.service.ServicePublic;
 import com.tan.utils.EntityResponseConstants;
 import com.tan.entity.EntityResult;
+import com.tan.utils.UserThreadLocal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -12,6 +15,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
+
+import static com.tan.utils.RedisConstants.CAPTCHA_CODE;
+
 @Slf4j
 @Service
 public class ServicePublicImpl implements ServicePublic {
@@ -25,30 +31,45 @@ public class ServicePublicImpl implements ServicePublic {
 
     /**
      * 发送邮箱验证码
+     *
      * @param email
      * @return
      */
     @Override
     public EntityResult sendEmailCode(String email) {
-        try{
+        try {
             // 生成 6 位数字验证码
             String code = RandomUtil.randomNumbers(6);
 
             SimpleMailMessage message = new SimpleMailMessage();
             message.setSubject("【文件管理系统验证码】验证消息"); // 发送邮件的标题
-            message.setText("登录操作，验证码："+ code + "，切勿将验证码泄露给他人，本条验证码有效期2分钟。"); // 发送邮件的内容
+            message.setText("登录操作，验证码：" + code + "，切勿将验证码泄露给他人，本条验证码有效期2分钟。"); // 发送邮件的内容
             message.setTo(email); // 指定要接收邮件的用户邮箱账号
             message.setFrom("2914421833@qq.com"); // 发送邮件的邮箱账号，注意一定要和配置文件中的一致！
 
             sender.send(message); // 调用send方法发送邮件即可
 
-            stringRedisTemplate.opsForValue().set(email, code,2L, TimeUnit.MINUTES);
+            stringRedisTemplate.opsForValue().set(email, code, 2L, TimeUnit.MINUTES);
 
-            return EntityResult.success(EntityResponseConstants.SEND_SUCCESS+",验证码是:"+code);
-        }
-        catch (Exception e){
+            return EntityResult.success(EntityResponseConstants.SEND_SUCCESS + ",验证码是:" + code);
+        } catch (Exception e) {
             e.printStackTrace();
             return EntityResult.error(EntityResponseConstants.SEND_FAIL);
         }
+    }
+
+    /**
+     * 图形验证码
+     *
+     * @return
+     */
+    @Override
+    public EntityResult getCaptcha() {
+        LineCaptcha lineCaptcha = CaptchaUtil.createLineCaptcha(100, 40, 4, 4);
+        String code = lineCaptcha.getCode();
+        stringRedisTemplate.opsForValue().set("captcha", code);
+        log.info("imageode:{}",code);
+        String imageBase64 = lineCaptcha.getImageBase64();
+        return EntityResult.success(imageBase64);
     }
 }

@@ -29,10 +29,11 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new MyInterceptor(mapperUser,stringRedisTemplate))
+                .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/user/login",
                         "/captcha",
-                        "/code",
+                        "/email-code",
                         "/user/register"
                         );
     }

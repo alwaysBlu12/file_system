@@ -1,5 +1,6 @@
 package com.tan.entity;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -19,6 +20,11 @@ public class EntityUser {
     private String email;
 
     /** 密码 */
+    /**
+     * @JsonIgnore 注解的作用是告诉 Jackson JSON 处理库在序列化对象到 JSON 时忽略特定的字段。
+     * 这个注解不会影响数据库查询操作，
+     * 它只作用于序列化过程，即当你的后端服务准备将对象转换为 JSON 格式以响应前端请求时。
+     */
     @JsonIgnore
     private String password;
 
