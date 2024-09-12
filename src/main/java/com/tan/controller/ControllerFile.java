@@ -1,15 +1,17 @@
 package com.tan.controller;
 
+import com.tan.dto.SaveFileDTO;
 import com.tan.entity.EntityResult;
 import com.tan.entity.PageBean;
 import com.tan.service.ServiceFile;
+import com.tan.utils.UserThreadLocal;
 import com.tan.vo.FileListVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @RestController
@@ -18,6 +20,16 @@ public class ControllerFile {
 
     @Autowired
     private ServiceFile serviceFile;
+
+
+    /**
+     * 上传文件后进行保存
+     * @return
+     */
+    @PostMapping
+    public EntityResult saveFile(@RequestBody SaveFileDTO saveFileDTO) {
+        return serviceFile.save(saveFileDTO);
+    }
 
 
     /**
