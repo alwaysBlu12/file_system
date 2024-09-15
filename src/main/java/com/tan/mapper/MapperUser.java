@@ -10,9 +10,12 @@ import java.util.List;
 @Mapper
 public interface MapperUser {
 
-    @Insert("insert into user (username, email, password, avatar_url, update_time) value (#{username},#{email},#{password},#{avatarUrl},now())")
+    @Options(useGeneratedKeys = true,keyProperty = "userId")
+    @Insert("insert into user (username, email, password, avatar_url, update_time) value (#{username},#{email},#{password},#{avatarUrl},#{updateTime})")
     void save(EntityUser user1);
 
+    @Select("select * from user where email = #{email}")
+    EntityUser getUserByEmail(String email);
     @Select("select * from user where username = #{username}")
     EntityUser getUserByUsername(String username);
 

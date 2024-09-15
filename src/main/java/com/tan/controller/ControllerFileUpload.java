@@ -13,6 +13,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.UUID;
+
+import static com.tan.utils.FileConstants.FILE_PATH;
+import static com.tan.utils.FileConstants.SERVER_FILE_PATH;
+
 @Slf4j
 @RestController
 public class ControllerFileUpload {
@@ -31,7 +35,7 @@ public class ControllerFileUpload {
 
 
         // 指定本地存储路径
-        String localPath = "D:\\develop\\project\\file_project\\file_data"; // 替换为你的本地文件夹路径
+        String localPath = FILE_PATH; // 替换为你的本地文件夹路径
 
         File localFile  = new File(localPath, filename);
 
@@ -43,7 +47,7 @@ public class ControllerFileUpload {
         }
 
         // 构建返回的URL（如果需要）
-        String filePath = "http://localhost:8080/file/" + filename; // 替换为你的访问URL
+        String filePath = SERVER_FILE_PATH + filename;
 
         //获取文件类型
         String fileType = filename.substring(filename.lastIndexOf(".") + 1);

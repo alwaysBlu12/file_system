@@ -32,9 +32,10 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/user/login",
-                        "/captcha",
+                        "/public/**",
                         "/email-code",
-                        "/user/register"
+                        "/user/register",
+                        "/getImage/**" //访问静态资源
                         );
     }
 

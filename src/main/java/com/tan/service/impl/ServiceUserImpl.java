@@ -1,16 +1,20 @@
 package com.tan.service.impl;
 
+import cn.hutool.core.util.RandomUtil;
 import com.tan.dto.LoginDTO;
 import com.tan.dto.RegisterDTO;
 import com.tan.dto.SaveUserDTO;
 import com.tan.dto.UpdateUserDTO;
+import com.tan.entity.EntitySpace;
 import com.tan.entity.EntityUser;
+import com.tan.mapper.MapperSpace;
 import com.tan.mapper.MapperUser;
 import com.tan.service.ServiceUser;
 import com.tan.entity.EntityResult;
 import com.tan.utils.JwtUtils;
 import com.tan.utils.Md5Util;
 import com.tan.utils.UserThreadLocal;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +22,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +34,9 @@ public class ServiceUserImpl implements ServiceUser {
     
     @Autowired
     private MapperUser mapperUser;
+
+    @Resource
+    private MapperSpace mapperSpace;
     
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
@@ -68,7 +76,7 @@ public class ServiceUserImpl implements ServiceUser {
 
         //存入redis
         stringRedisTemplate.opsForValue().set(REDIS_USER + user.getUserId(), token,1000, TimeUnit.MINUTES);
-
+//        log.info("登录成功:{}",token);
         return EntityResult.success(token);
     }
 
@@ -81,21 +89,23 @@ public class ServiceUserImpl implements ServiceUser {
     public EntityResult register(RegisterDTO registerDTO) {
 
 
+        String email = registerDTO.getEmail();
         String username = registerDTO.getUsername();
 
         //查询该用户
-        EntityUser user =  mapperUser.getUserByUsername(username);
+        EntityUser user =  mapperUser.getUserByEmail(email);
         //存在
         if (Objects.nonNull(user)){
             return EntityResult.error("当前用户已经存在");
         }
-
-        //两次密码
-        if (!registerDTO.getPassword().equals(registerDTO.getRePassword())){
-            return EntityResult.error("两次密码不一致");
+        //查询该用户
+        user =  mapperUser.getUserByUsername(username);
+        //存在
+        if (Objects.nonNull(user)){
+            return EntityResult.error("当前用户名已经存在");
         }
-        
-        //不存在
+
+
         //校验验证码
         String code = registerDTO.getCode();
 
@@ -116,8 +126,19 @@ public class ServiceUserImpl implements ServiceUser {
 
         user1.setPassword(md5String);
         user1.setAvatarUrl("default");
+        user1.setUpdateTime(LocalDateTime.now());
 
         mapperUser.save(user1);
+        //返回主键值
+        //log.info("返回主键:{}",user1.getUserId());
+        //此时需要为用户生成一个默认大小为1GB的存储空间
+        EntitySpace space = new EntitySpace().builder()
+                .fileCount(0)
+                .totalSpace(1L)
+                .usedSpace(0L)
+                .userId(user1.getUserId())
+                .build();
+        mapperSpace.create(space);
 
         return EntityResult.success();
 

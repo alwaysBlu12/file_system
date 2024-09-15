@@ -41,11 +41,12 @@ CREATE TABLE user_activities (
 );
 
 -- 用户文件存储表
-CREATE TABLE user_file_storage (
-                                   user_id INT PRIMARY KEY,
-                                   username VARCHAR(50),
+CREATE TABLE user_file_space (
+                                   space_id INT PRIMARY KEY,
+                                   user_id INT NOT NULL,
                                    file_count INT,
-                                   total_storage BIGINT
+                                   used_space BIGINT,
+                                   total_space BIGINT
 );
 
 -- 文件使用频率表

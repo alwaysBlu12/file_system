@@ -1,17 +1,15 @@
 package com.tan.controller;
 
 import com.tan.dto.SaveFileDTO;
+import com.tan.dto.UpdateFileDTO;
 import com.tan.entity.EntityResult;
 import com.tan.entity.PageBean;
 import com.tan.service.ServiceFile;
-import com.tan.utils.UserThreadLocal;
+
 import com.tan.vo.FileListVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
 
 @Slf4j
 @RestController
@@ -52,5 +50,35 @@ public class ControllerFile {
         PageBean<FileListVO> pageBean = serviceFile.list(currentPage,pageSize,fileType,fileName);
         return EntityResult.success(pageBean);
     }
+
+    /**
+     * 删除文件
+     * @param fileId
+     * @return
+     */
+    @DeleteMapping
+    public EntityResult deleteById(Integer fileId) {
+        return serviceFile.deleteById(fileId);
+    }
+
+    /**
+     * 查看文件详细信息
+     * @param fileId
+     * @return
+     */
+    @GetMapping
+    public EntityResult getById(Integer fileId) {
+        return serviceFile.getById(fileId);
+    }
+
+    /**
+     * 重命名文件
+     * @return
+     */
+    @PutMapping
+    public EntityResult update(@RequestBody UpdateFileDTO updateFileDTO){
+        return serviceFile.update(updateFileDTO);
+    }
+
 
 }

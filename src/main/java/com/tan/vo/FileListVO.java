@@ -14,7 +14,7 @@ public class FileListVO {
     private String fileType;
 
     /** 文件大小 */
-    private Long fileSize;
+    private String fileSize;
 
     /** 上传时间 */
     private LocalDateTime uploadTime;
