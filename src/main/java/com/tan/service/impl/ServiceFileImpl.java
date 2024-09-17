@@ -113,13 +113,22 @@ public class ServiceFileImpl implements ServiceFile {
         //获取该文件
         Integer fileId = updateFileDTO.getFileId();
         EntityFile entityFile = mapperFile.getById(fileId,userId);
-
+        //当前空间
+        Integer currentSpaceId = entityFile.getSpaceId();
         BeanUtil.copyProperties(updateFileDTO, entityFile);
         entityFile.setUpdateTime(LocalDateTime.now());
 
-        mapperFile.update(entityFile);
+        Integer updateSpaceId = updateFileDTO.getSpaceId();
+        if (!currentSpaceId.equals(updateSpaceId)) {
+            //移动空间
+            //当前空间-1
+            mapperSpace.subFileCount(currentSpaceId);
+            //更新空间+1
+            mapperSpace.addFileCount(updateSpaceId);
+            //更新
+        }
 
-        //更新文件之后,如果是移动,空间的文件数需要修改
+        mapperFile.update(entityFile);
 
         return EntityResult.success();
     }

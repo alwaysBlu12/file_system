@@ -29,4 +29,18 @@ public interface MapperSpace {
     @Insert("insert into space (name, description, user_id, file_count, used_space, total_space, create_time) value " +
             "(#{name},#{description},#{userId},#{fileCount},#{usedSpace},#{totalSpace},#{createTime})")
     void save(EntitySpace entitySpace);
+
+    /**
+     * 当前空间文件数-1
+     * @param currentSpaceId
+     */
+    @Update("update space set file_count=file_count-1 where space_id=#{currentSpaceId}")
+    void subFileCount(Integer currentSpaceId);
+
+    /**
+     * 当前空间文件数-1
+     * @param updateSpaceId
+     */
+    @Update("update space set file_count=file_count+1 where space_id=#{updateSpaceId}")
+    void addFileCount(Integer updateSpaceId);
 }
