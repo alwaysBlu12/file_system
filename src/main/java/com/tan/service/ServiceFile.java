@@ -7,7 +7,7 @@ import com.tan.entity.PageBean;
 import com.tan.vo.FileListVO;
 
 public interface ServiceFile {
-    PageBean<FileListVO> list(Integer currentPage, Integer pageSize, String fileType, String fileName);
+    PageBean<FileListVO> list(Integer currentPage, Integer pageSize, String fileType, String fileName,Integer spaceId);
 
     /**
      * 存储文件信息
@@ -36,4 +36,11 @@ public interface ServiceFile {
      * @return
      */
     EntityResult update(UpdateFileDTO updateFileDTO);
+
+    /**
+     * 获取文件分类
+     * @param spaceId
+     * @return
+     */
+    EntityResult getFileTypes(Integer spaceId);
 }

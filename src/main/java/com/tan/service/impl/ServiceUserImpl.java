@@ -14,6 +14,7 @@ import com.tan.entity.EntityResult;
 import com.tan.utils.JwtUtils;
 import com.tan.utils.Md5Util;
 import com.tan.utils.UserThreadLocal;
+import com.tan.vo.UserListVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -71,11 +72,10 @@ public class ServiceUserImpl implements ServiceUser {
         claims.put("userId", user.getUserId().toString());
         claims.put("email", user.getEmail());
 
-
         String token = JwtUtils.generateJwt(claims);
 
         //存入redis
-        stringRedisTemplate.opsForValue().set(REDIS_USER + user.getUserId(), token,1000, TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set(REDIS_USER + user.getUserId(), token);
 //        log.info("登录成功:{}",token);
         return EntityResult.success(token);
     }
@@ -92,14 +92,17 @@ public class ServiceUserImpl implements ServiceUser {
         String email = registerDTO.getEmail();
         String username = registerDTO.getUsername();
 
+//        //查询该用户
+//        EntityUser user =  mapperUser.getUserByEmail(email);
+//        //存在
+//        if (Objects.nonNull(user)){
+//            return EntityResult.error("当前用户已经存在");
+//        }
+
+        //这里为了测试,一个邮箱可以注册多个
+
         //查询该用户
-        EntityUser user =  mapperUser.getUserByEmail(email);
-        //存在
-        if (Objects.nonNull(user)){
-            return EntityResult.error("当前用户已经存在");
-        }
-        //查询该用户
-        user =  mapperUser.getUserByUsername(username);
+        EntityUser user =  mapperUser.getUserByUsername(username);
         //存在
         if (Objects.nonNull(user)){
             return EntityResult.error("当前用户名已经存在");
@@ -131,17 +134,26 @@ public class ServiceUserImpl implements ServiceUser {
         mapperUser.save(user1);
         //返回主键值
         //log.info("返回主键:{}",user1.getUserId());
-        //此时需要为用户生成一个默认大小为1GB的存储空间
-        EntitySpace space = new EntitySpace().builder()
-                .fileCount(0)
-                .totalSpace(1L)
-                .usedSpace(0L)
-                .userId(user1.getUserId())
-                .build();
-        mapperSpace.create(space);
+        createSpace(user1.getUserId());
 
         return EntityResult.success();
 
+    }
+
+    /**
+     * 创建个人空间
+     * @param userId
+     */
+    private void createSpace(Integer userId) {
+        //此时需要为用户生成一个默认大小为100Mb的存储空间-->
+        EntitySpace space = new EntitySpace().builder()
+                .fileCount(0)
+                //统一单位是bit,100MB=1,000,000bit
+                .totalSpace(1000000L)
+                .usedSpace(0L)
+                .userId(userId)
+                .build();
+        mapperSpace.create(space);
     }
 
     /**
@@ -171,7 +183,26 @@ public class ServiceUserImpl implements ServiceUser {
 //            list.add(user);
 //            return EntityResult.success(list);
 //        }
-        return EntityResult.success(mapperUser.list());
+        List<EntityUser> list = mapperUser.list();
+        //List<UserListVO> userListVOS = new ArrayList<>();
+//        for (EntityUser entityUser : list) {
+//            //获取userId
+//            Integer userId = entityUser.getUserId();
+//            //获取空间信息
+//            EntitySpace entitySpace = mapperSpace.getByUserId(userId);
+//            UserListVO userListVO = new UserListVO();
+//            BeanUtils.copyProperties(entityUser,userListVO);
+//
+//            //计算
+//            Long totalSpace = entitySpace.getTotalSpace();
+//            Long usedSpace = entitySpace.getUsedSpace();
+//
+//            userListVO.setPercent(1.0*usedSpace/totalSpace*100);
+//            userListVO.setFileCount(entitySpace.getFileCount());
+//            userListVOS.add(userListVO);
+//
+//        }
+        return EntityResult.success(list);
     }
 
     /**
@@ -181,7 +212,11 @@ public class ServiceUserImpl implements ServiceUser {
      */
     @Override
     public EntityResult save(@RequestBody SaveUserDTO saveUserDTO) {
-        mapperUser.add(saveUserDTO);
+        EntityUser user = new EntityUser();
+        BeanUtils.copyProperties(saveUserDTO,user);
+        mapperUser.add(user);
+        //也需要分配一个空间
+        createSpace(user.getUserId());
         return EntityResult.success();
     }
 

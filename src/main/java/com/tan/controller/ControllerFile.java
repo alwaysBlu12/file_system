@@ -43,11 +43,13 @@ public class ControllerFile {
             Integer currentPage,
             Integer pageSize,
             @RequestParam(required = false) String fileType,
-            @RequestParam(required = false)  String fileName){
+            @RequestParam(required = false)  String fileName,
+            Integer spaceId
+            ){
 
-        log.info("current:{},pageSize:{},fileType:{},fileName:{}",currentPage,pageSize,fileType,fileName);
+        log.info("current:{},pageSize:{},fileType:{},fileName:{},spaceId:{}",currentPage,pageSize,fileType,fileName,spaceId);
 
-        PageBean<FileListVO> pageBean = serviceFile.list(currentPage,pageSize,fileType,fileName);
+        PageBean<FileListVO> pageBean = serviceFile.list(currentPage,pageSize,fileType,fileName,spaceId);
         return EntityResult.success(pageBean);
     }
 
@@ -78,6 +80,17 @@ public class ControllerFile {
     @PutMapping
     public EntityResult update(@RequestBody UpdateFileDTO updateFileDTO){
         return serviceFile.update(updateFileDTO);
+    }
+
+
+    /**
+     * 获取文件分类
+     * @param spaceId
+     * @return
+     */
+    @GetMapping("/type")
+    public EntityResult getFileTypes(Integer spaceId) {
+        return serviceFile.getFileTypes(spaceId);
     }
 
 

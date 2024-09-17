@@ -8,7 +8,7 @@
         <where>
             <if test="fileType!=null and fileType!=''">file_type=#{fileType}</if>
             <if test="fileName!=null and fileName!=''">and file_name like concat('%',#{fileName},'%')</if>
-            and user_id=#{userId}
+            and user_id=#{userId} and space_id=#{spaceId}
         </where>
     </select>
 

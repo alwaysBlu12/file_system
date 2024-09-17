@@ -11,5 +11,5 @@ public class ResponseFile {
     private String fileName;
     private String filePath;
     private String fileType;
-    private String fileSize;
+    private Long fileSize;
 }

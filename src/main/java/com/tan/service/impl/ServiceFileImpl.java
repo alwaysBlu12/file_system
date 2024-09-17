@@ -5,14 +5,14 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.tan.dto.SaveFileDTO;
 import com.tan.dto.UpdateFileDTO;
-import com.tan.entity.EntityFile;
-import com.tan.entity.EntityResult;
-import com.tan.entity.EntityUser;
-import com.tan.entity.PageBean;
+import com.tan.entity.*;
 import com.tan.mapper.MapperFile;
+import com.tan.mapper.MapperSpace;
 import com.tan.service.ServiceFile;
+import com.tan.utils.FileUtils;
 import com.tan.utils.UserThreadLocal;
 import com.tan.vo.FileListVO;
+import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +30,9 @@ public class ServiceFileImpl implements ServiceFile {
     @Autowired
     private MapperFile mapperFile;
 
+    @Resource
+    private MapperSpace mapperSpace;
+
 
     /**
      * 存储文件信息
@@ -39,11 +42,32 @@ public class ServiceFileImpl implements ServiceFile {
      */
     @Override
     public EntityResult save(SaveFileDTO saveFileDTO) {
+
+        Integer userId = UserThreadLocal.get().getUserId();
+
         EntityFile entityFile = new EntityFile();
         BeanUtil.copyProperties(saveFileDTO, entityFile);
-        entityFile.setUserId(UserThreadLocal.get().getUserId());
+        entityFile.setUserId(userId);
+
+        /**
+         * 注意:这里的saveFileDTO中的fileSize是Long,因为后面需要存入空间进行计算
+         * 但存入文件,可以用容易读的字符串展示
+         */
+
+        entityFile.setFileSize(FileUtils.convertFileSize(saveFileDTO.getFileSize()));
+
         entityFile.setUploadTime(LocalDateTime.now());
+        entityFile.setSpaceId(saveFileDTO.getSpaceId());
         mapperFile.save(entityFile);
+
+        //用户空间也需要更新---文件数和文件大小
+        //获取用户空间
+        //这里应该根据spaceId
+        EntitySpace space = mapperSpace.getBySpacecId(saveFileDTO.getSpaceId());
+        //更新用户空间的usedSpace和fileCount
+        space.setFileCount(space.getFileCount() + 1);
+        space.setUsedSpace(space.getUsedSpace() + saveFileDTO.getFileSize());
+        mapperSpace.update(space);
         return EntityResult.success();
     }
 
@@ -115,6 +139,18 @@ public class ServiceFileImpl implements ServiceFile {
     }
 
     /**
+     * 获取文件分类
+     *
+     * @param spaceId
+     * @return
+     */
+    @Override
+    public EntityResult getFileTypes(Integer spaceId) {
+        List<String> list = mapperFile.getFileTypes(spaceId);
+        return EntityResult.success(list);
+    }
+
+    /**
      * 获取文件列表
      * @param currentPage
      * @param pageSize
@@ -123,7 +159,7 @@ public class ServiceFileImpl implements ServiceFile {
      * @return
      */
     @Override
-    public PageBean<FileListVO> list(Integer currentPage, Integer pageSize, String fileType, String fileName) {
+    public PageBean<FileListVO> list(Integer currentPage, Integer pageSize, String fileType, String fileName,Integer spaceId) {
         PageBean<FileListVO> pageBean = new PageBean<>();
 
         PageHelper.startPage(currentPage, pageSize);
@@ -132,7 +168,7 @@ public class ServiceFileImpl implements ServiceFile {
         EntityUser user = UserThreadLocal.get();
         Integer userId = user.getUserId();
 
-        List<FileListVO> data = mapperFile.list(userId,fileType,fileName);
+        List<FileListVO> data = mapperFile.list(userId,fileType,fileName,spaceId);
 
         Page<FileListVO> page = (Page<FileListVO>) data;
 

@@ -40,13 +40,17 @@ CREATE TABLE user_activities (
                                  FOREIGN KEY (file_id) REFERENCES file(file_id)
 );
 
--- 用户文件存储表
+-- 用户空间表
 CREATE TABLE user_file_space (
                                    space_id INT PRIMARY KEY,
+                                    name varchar(50),
+                                    description text,
                                    user_id INT NOT NULL,
                                    file_count INT,
                                    used_space BIGINT,
-                                   total_space BIGINT
+                                   total_space BIGINT,
+                                    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
 );
 
 -- 文件使用频率表
@@ -73,3 +77,4 @@ CREATE TABLE system_capacity_usage (
                                        used_capacity_gb FLOAT,
                                        remaining_capacity_gb FLOAT
 );
+

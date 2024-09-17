@@ -15,8 +15,11 @@ public class SaveFileDTO {
     private String fileType;
 
     /** 文件大小 */
-    private String fileSize;
+    private Long fileSize;
 
     /** 文件路径 */
     private String filePath;
+
+    /** 空间id */
+    private Integer spaceId;
 }

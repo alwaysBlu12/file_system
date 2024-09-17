@@ -30,4 +30,9 @@ public class EntityFile {
 
     /** 文件路径 */
     private String filePath;
+
+    /**
+     * 空间id
+     */
+    private Integer spaceId;
 }

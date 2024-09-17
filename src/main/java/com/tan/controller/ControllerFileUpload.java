@@ -54,12 +54,13 @@ public class ControllerFileUpload {
         log.info("fileType:{}",fileType);
         //获取文件大小
         long fileSizeBytes = file.getSize();
-        String fileSize = FileUtils.convertFileSize(fileSizeBytes);
-
+        //String fileSize = FileUtils.convertFileSize(fileSizeBytes);
+        //这里就不转换单位了,统一单位存入数据库,后面方便计算,
+        log.info("fileSizeBytes:{}",fileSizeBytes);
         //将文件存入阿里云
         //String url = AliOssUtil.uploadFile(filename, file.getInputStream());
         //将url存入数据库
-        return EntityResult.success(new ResponseFile(filename,filePath,fileType,fileSize));
+        return EntityResult.success(new ResponseFile(filename,filePath,fileType,fileSizeBytes));
     }
 
 }

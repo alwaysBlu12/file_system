@@ -1,6 +1,5 @@
 package com.tan.mapper;
 
-import com.tan.dto.SaveUserDTO;
 import com.tan.dto.UpdateUserDTO;
 import com.tan.entity.EntityUser;
 import org.apache.ibatis.annotations.*;
@@ -22,8 +21,9 @@ public interface MapperUser {
     @Select("select * from user")
     List<EntityUser> list();
 
+    @Options(useGeneratedKeys = true,keyProperty = "userId")
     @Insert("insert into user (username,email,update_time) value (#{username},#{email},now())")
-    void add(SaveUserDTO saveUserDTO);
+    void add(EntityUser user);
 
     @Update("update user set username=#{username},email=#{email},update_time=now() where user_id = #{userId}")
     void update(UpdateUserDTO updateUserDTO);
