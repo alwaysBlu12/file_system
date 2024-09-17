@@ -1,9 +1,6 @@
 package com.tan.mapper;
 
-import com.tan.dto.SaveFileDTO;
-import com.tan.dto.UpdateFileDTO;
 import com.tan.entity.EntityFile;
-import com.tan.entity.EntityResult;
 import com.tan.vo.FileListVO;
 import org.apache.ibatis.annotations.*;
 
@@ -24,7 +21,8 @@ public interface MapperFile {
     @Select("select * from file where file_id=#{fileId} and user_id=#{userId}")
     EntityFile getById(Integer fileId,Integer userId);
 
-    void update(UpdateFileDTO updateFileDTO);
+
+    void update(EntityFile updateFileDTO);
 
     @Select("select file_type from file where space_id=#{spaceId}")
     List<String> getFileTypes(Integer spaceId);

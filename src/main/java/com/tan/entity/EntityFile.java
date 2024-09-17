@@ -24,9 +24,9 @@ public class EntityFile {
     /** 文件大小 */
     private String fileSize;
 
-    /** 上传时间 */
+    /** 更新时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime uploadTime;
+    private LocalDateTime updateTime;
 
     /** 文件路径 */
     private String filePath;

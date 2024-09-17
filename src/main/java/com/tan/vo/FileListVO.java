@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 @Data
 public class FileListVO {
 
+    private Integer fileId;
+
     /** 文件名 */
     private String fileName;
 

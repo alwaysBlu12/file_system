@@ -74,7 +74,7 @@ public class ControllerFile {
     }
 
     /**
-     * 重命名文件
+     * 更新文件
      * @return
      */
     @PutMapping

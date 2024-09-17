@@ -13,14 +13,16 @@
     </select>
 
 
-    <!--更新文件基本信息-->
     <update id="update">
         update file
         <set>
-            <if test="newFileName!=null">file_name=#{newFileName},</if>
-            <if test="fileType!=null">file_type=#{fileType},</if>
+            <if test="fileName!=null">file_name=#{fileName},</if>
             <if test="filePath!=null">file_path=#{filePath},</if>
+            <if test="updateTime!=null">update_time=#{updateTime},</if>
+            <if test="spaceId!=null">space_id=#{spaceId},</if>
         </set>
-        where user_id=#{userId} and file_id=#{fileId}
+        where file_id=#{fileId}
     </update>
+
+
 </mapper>

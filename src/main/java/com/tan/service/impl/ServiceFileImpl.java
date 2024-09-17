@@ -13,6 +13,7 @@ import com.tan.utils.FileUtils;
 import com.tan.utils.UserThreadLocal;
 import com.tan.vo.FileListVO;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,7 @@ import java.util.Map;
 
 import static com.tan.utils.FileConstants.FILE_PATH;
 import static com.tan.utils.FileConstants.SERVER_FILE_PATH;
-
+@Slf4j
 @Service
 public class ServiceFileImpl implements ServiceFile {
 
@@ -56,7 +57,7 @@ public class ServiceFileImpl implements ServiceFile {
 
         entityFile.setFileSize(FileUtils.convertFileSize(saveFileDTO.getFileSize()));
 
-        entityFile.setUploadTime(LocalDateTime.now());
+        entityFile.setUpdateTime(LocalDateTime.now());
         entityFile.setSpaceId(saveFileDTO.getSpaceId());
         mapperFile.save(entityFile);
 
@@ -109,32 +110,17 @@ public class ServiceFileImpl implements ServiceFile {
     public EntityResult update(UpdateFileDTO updateFileDTO) {
 
         Integer userId = UserThreadLocal.get().getUserId();
-        updateFileDTO.setUserId(userId);
-
         //获取该文件
         Integer fileId = updateFileDTO.getFileId();
         EntityFile entityFile = mapperFile.getById(fileId,userId);
-        if (entityFile == null) {
-            return EntityResult.error("文件不存在");
-        }
 
+        BeanUtil.copyProperties(updateFileDTO, entityFile);
+        entityFile.setUpdateTime(LocalDateTime.now());
 
-        String newFileName = updateFileDTO.getNewFileName();
+        mapperFile.update(entityFile);
 
-        String oldFileFullPath = FILE_PATH+"\\"+entityFile.getFileName();
-        File oldfile = new File(oldFileFullPath);
-        String newFileFullPath = FILE_PATH+"\\"+updateFileDTO.getNewFileName();
-        File newfile = new File(newFileFullPath);
+        //更新文件之后,如果是移动,空间的文件数需要修改
 
-        boolean success = oldfile.renameTo(newfile);
-
-        if (!success){
-            return EntityResult.error("更新失败");
-        }
-        String fileType = newFileName.substring(newFileName.lastIndexOf(".")+1);
-        updateFileDTO.setFileType(fileType);
-        updateFileDTO.setFilePath(SERVER_FILE_PATH+newFileName);
-        mapperFile.update(updateFileDTO);
         return EntityResult.success();
     }
 
@@ -169,7 +155,6 @@ public class ServiceFileImpl implements ServiceFile {
         Integer userId = user.getUserId();
 
         List<FileListVO> data = mapperFile.list(userId,fileType,fileName,spaceId);
-
         Page<FileListVO> page = (Page<FileListVO>) data;
 
         pageBean.setTotal(page.getTotal());
