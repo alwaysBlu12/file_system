@@ -59,8 +59,8 @@ public class ControllerFile {
      * @return
      */
     @DeleteMapping
-    public EntityResult deleteById(Integer fileId) {
-        return serviceFile.deleteById(fileId);
+    public EntityResult deleteById(Integer fileId,Integer spaceId) {
+        return serviceFile.deleteById(fileId,spaceId);
     }
 
     /**
@@ -92,6 +92,7 @@ public class ControllerFile {
     public EntityResult getFileTypes(Integer spaceId) {
         return serviceFile.getFileTypes(spaceId);
     }
+
 
 
 }

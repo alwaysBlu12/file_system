@@ -43,7 +43,10 @@ public class MyInterceptor implements HandlerInterceptor {
         if(Objects.isNull(token)){
             System.out.println("当前token为空");
             response.setStatus(401);
-            throw new RuntimeException("当前未登录");
+//            throw new RuntimeException("当前未登录");
+
+            response.getWriter().write("萨啊实打实对阿斯顿达");
+            return false;
         }
 
         //解析token

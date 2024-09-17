@@ -34,20 +34,20 @@ public class ControllerFileUpload {
         System.out.println(filename);
 
 
-        // 指定本地存储路径
-        String localPath = FILE_PATH; // 替换为你的本地文件夹路径
-
-        File localFile  = new File(localPath, filename);
-
-
-        // 将文件存入本地
-        try (
-            FileOutputStream fos = new FileOutputStream(localFile)) {
-            fos.write(file.getBytes());
-        }
-
-        // 构建返回的URL（如果需要）
-        String filePath = SERVER_FILE_PATH + filename;
+//        // 指定本地存储路径
+//        String localPath = FILE_PATH; // 替换为你的本地文件夹路径
+//
+//        File localFile  = new File(localPath, filename);
+//
+//
+//        // 将文件存入本地
+//        try (
+//            FileOutputStream fos = new FileOutputStream(localFile)) {
+//            fos.write(file.getBytes());
+//        }
+//
+//        // 构建返回的URL（如果需要）
+//        String filePath = SERVER_FILE_PATH + filename;
 
         //获取文件类型
         String fileType = filename.substring(filename.lastIndexOf(".") + 1);
@@ -58,9 +58,9 @@ public class ControllerFileUpload {
         //这里就不转换单位了,统一单位存入数据库,后面方便计算,
         log.info("fileSizeBytes:{}",fileSizeBytes);
         //将文件存入阿里云
-        //String url = AliOssUtil.uploadFile(filename, file.getInputStream());
+        String url = AliOssUtil.uploadFile(filename, file.getInputStream());
         //将url存入数据库
-        return EntityResult.success(new ResponseFile(filename,filePath,fileType,fileSizeBytes));
+        return EntityResult.success(new ResponseFile(filename,url,fileType,fileSizeBytes));
     }
 
 }

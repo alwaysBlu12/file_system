@@ -17,13 +17,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
-import static com.tan.utils.FileConstants.FILE_PATH;
-import static com.tan.utils.FileConstants.SERVER_FILE_PATH;
 @Slf4j
 @Service
 public class ServiceFileImpl implements ServiceFile {
@@ -79,8 +75,15 @@ public class ServiceFileImpl implements ServiceFile {
      * @return
      */
     @Override
-    public EntityResult deleteById(Integer fileId) {
+    public EntityResult deleteById(Integer fileId,Integer spaceId) {
+
+        log.info("-----------------打印参数:{}",fileId);
+
+        //空间中的文件数要减少
+        EntityFile file = mapperFile.getById(fileId);
         mapperFile.deleteById(fileId);
+        //也是复用上了
+        mapperSpace.subFileCountAndSpace(spaceId,FileUtils.convertToBytes(file.getFileSize()));
         return EntityResult.success();
     }
 
@@ -92,8 +95,7 @@ public class ServiceFileImpl implements ServiceFile {
      */
     @Override
     public EntityResult getById(Integer fileId) {
-        Integer userId = UserThreadLocal.get().getUserId();
-        EntityFile entityFile = mapperFile.getById(fileId,userId);
+        EntityFile entityFile = mapperFile.getById(fileId);
         if (entityFile == null) {
             return EntityResult.error("找不到该文件");
         }
@@ -112,7 +114,7 @@ public class ServiceFileImpl implements ServiceFile {
         Integer userId = UserThreadLocal.get().getUserId();
         //获取该文件
         Integer fileId = updateFileDTO.getFileId();
-        EntityFile entityFile = mapperFile.getById(fileId,userId);
+        EntityFile entityFile = mapperFile.getById(fileId);
         //当前空间
         Integer currentSpaceId = entityFile.getSpaceId();
         BeanUtil.copyProperties(updateFileDTO, entityFile);
@@ -121,10 +123,14 @@ public class ServiceFileImpl implements ServiceFile {
         Integer updateSpaceId = updateFileDTO.getSpaceId();
         if (!currentSpaceId.equals(updateSpaceId)) {
             //移动空间
+
+            //获取当前文件的大小
+            String fileSize = entityFile.getFileSize();
+            long fileByte = FileUtils.convertToBytes(fileSize);
             //当前空间-1
-            mapperSpace.subFileCount(currentSpaceId);
+            mapperSpace.subFileCountAndSpace(currentSpaceId,fileByte);
             //更新空间+1
-            mapperSpace.addFileCount(updateSpaceId);
+            mapperSpace.addFileCountAndSpace(updateSpaceId,fileByte);
             //更新
         }
 

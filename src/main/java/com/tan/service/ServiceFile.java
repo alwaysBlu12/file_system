@@ -21,7 +21,7 @@ public interface ServiceFile {
      * @param fileId
      * @return
      */
-    EntityResult deleteById(Integer fileId);
+    EntityResult deleteById(Integer fileId,Integer spaceId);
 
     /**
      * 查看文件

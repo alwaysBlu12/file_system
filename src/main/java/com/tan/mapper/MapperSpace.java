@@ -17,7 +17,7 @@ public interface MapperSpace {
     @Select("select * from space where space_id=#{spaceId}")
     EntitySpace getBySpacecId(Integer spaceId);
 
-    @Update("update space set file_count=#{fileCount},used_space=#{usedSpace} where user_id=#{userId}")
+    @Update("update space set file_count=#{fileCount},used_space=#{usedSpace} where space_id=#{spaceId}")
     void update(EntitySpace fileSize);
 
     @Select("select * from space where user_id=#{userId}")
@@ -34,13 +34,13 @@ public interface MapperSpace {
      * 当前空间文件数-1
      * @param currentSpaceId
      */
-    @Update("update space set file_count=file_count-1 where space_id=#{currentSpaceId}")
-    void subFileCount(Integer currentSpaceId);
+    @Update("update space set file_count=file_count-1,used_space=used_space-#{fileByte} where space_id=#{currentSpaceId}")
+    void subFileCountAndSpace(Integer currentSpaceId,Long fileByte);
 
     /**
      * 当前空间文件数-1
      * @param updateSpaceId
      */
-    @Update("update space set file_count=file_count+1 where space_id=#{updateSpaceId}")
-    void addFileCount(Integer updateSpaceId);
+    @Update("update space set file_count=file_count+1,used_space=used_space+#{fileByte} where space_id=#{updateSpaceId}")
+    void addFileCountAndSpace(Integer updateSpaceId,Long fileByte);
 }
