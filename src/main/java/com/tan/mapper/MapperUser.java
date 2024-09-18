@@ -25,8 +25,8 @@ public interface MapperUser {
     @Insert("insert into user (username,email,update_time) value (#{username},#{email},now())")
     void add(EntityUser user);
 
-    @Update("update user set username=#{username},email=#{email},update_time=now() where user_id = #{userId}")
-    void update(UpdateUserDTO updateUserDTO);
+
+    void update(EntityUser user);
 
     @Select("select * from user where user_id=#{userId}")
     EntityUser getUserById(Integer userId);

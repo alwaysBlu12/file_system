@@ -1,10 +1,7 @@
 package com.tan.service.impl;
 
 import cn.hutool.core.util.RandomUtil;
-import com.tan.dto.LoginDTO;
-import com.tan.dto.RegisterDTO;
-import com.tan.dto.SaveUserDTO;
-import com.tan.dto.UpdateUserDTO;
+import com.tan.dto.*;
 import com.tan.entity.EntitySpace;
 import com.tan.entity.EntityUser;
 import com.tan.mapper.MapperSpace;
@@ -226,7 +223,11 @@ public class ServiceUserImpl implements ServiceUser {
      */
     @Override
     public EntityResult update(UpdateUserDTO updateUserDTO) {
-        mapperUser.update(updateUserDTO);
+        EntityUser user = new EntityUser();
+        BeanUtils.copyProperties(updateUserDTO,user);
+        user.setUpdateTime(LocalDateTime.now());
+        user.setUserId(UserThreadLocal.get().getUserId());
+        mapperUser.update(user);
         return EntityResult.success();
     }
 
@@ -281,6 +282,34 @@ public class ServiceUserImpl implements ServiceUser {
         stringRedisTemplate.delete(REDIS_USER+user.getUserId());
 
         UserThreadLocal.remove();
+        return EntityResult.success();
+    }
+
+    /**
+     * 更新密码
+     * @param updatePwdDTO
+     * @return
+     */
+    @Override
+    public EntityResult updatePwd(UpdatePwdDTO updatePwdDTO) {
+
+        //获取用户信息
+        EntityUser user = UserThreadLocal.get();
+        log.info("user:{}",user);
+        //判断原密码是否正确
+        String rawPwd = updatePwdDTO.getRawPassword();
+        if(!Md5Util.getMD5String(rawPwd).equals(user.getPassword())){
+            return EntityResult.error("原密码错误");
+        }
+        //判断新旧密码是否一致
+        String newPwd = updatePwdDTO.getNewPassword();
+        String rePwd = updatePwdDTO.getRePassword();
+        if(!newPwd.equals(rePwd)){
+            return EntityResult.error("重复密码错误");
+        }
+        //更新
+        user.setPassword(Md5Util.getMD5String(newPwd));
+        mapperUser.update(user);
         return EntityResult.success();
     }
 }

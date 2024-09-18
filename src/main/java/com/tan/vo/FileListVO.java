@@ -18,7 +18,10 @@ public class FileListVO {
     /** 文件大小 */
     private String fileSize;
 
+    /** 文件路径  做预览功能*/
+    private String filePath;
+
     /** 上传时间 */
-    private LocalDateTime uploadTime;
+    private LocalDateTime updateTime;
 
 }

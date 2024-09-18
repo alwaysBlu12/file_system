@@ -1,9 +1,6 @@
 package com.tan.controller;
 
-import com.tan.dto.LoginDTO;
-import com.tan.dto.RegisterDTO;
-import com.tan.dto.SaveUserDTO;
-import com.tan.dto.UpdateUserDTO;
+import com.tan.dto.*;
 import com.tan.entity.EntityUser;
 import com.tan.service.ServiceUser;
 import com.tan.entity.EntityResult;
@@ -97,6 +94,16 @@ public class ControllerUser {
     @PostMapping("/logout")
     public EntityResult logout(){
         return serviceUser.logout();
+    }
+
+    /**
+     * 更新密码
+     * @param updatePwdDTO
+     * @return
+     */
+    @PutMapping("/updatePwd")
+    public EntityResult resetPassword(@RequestBody UpdatePwdDTO updatePwdDTO){
+        return serviceUser.updatePwd(updatePwdDTO);
     }
 
 }
