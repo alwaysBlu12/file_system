@@ -1,6 +1,7 @@
 package com.tan.controller;
 
 import com.tan.dto.SaveSpaceDTO;
+import com.tan.dto.UpdateSpaceDTO;
 import com.tan.entity.EntityResult;
 import com.tan.entity.EntitySpace;
 import com.tan.service.ServiceSpace;
@@ -45,6 +46,26 @@ public class ControllerSpace {
     @PostMapping
     public EntityResult save(@RequestBody SaveSpaceDTO saveSpaceDTO){
         return serviceSpace.save(saveSpaceDTO);
+    }
+
+    /**
+     * 删除空间
+     * @param spaceId
+     * @return
+     */
+    @DeleteMapping
+    public EntityResult deleteById(Integer spaceId){
+        return serviceSpace.deleteById(spaceId);
+    }
+
+    /**
+     * 更新空间
+     * @param updateSpaceDTO
+     * @return
+     */
+    @PutMapping
+    public EntityResult update(@RequestBody UpdateSpaceDTO updateSpaceDTO){
+        return serviceSpace.update(updateSpaceDTO);
     }
 
 }

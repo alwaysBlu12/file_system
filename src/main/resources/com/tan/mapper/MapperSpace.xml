@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tan.mapper.MapperSpace">
+
+<!--    更新空间信息,写全一点,方便复用-->
+    <update id="update" parameterType="com.tan.entity.EntitySpace">
+        UPDATE space
+        <set>
+            <if test="spaceName != null">
+                space_name = #{spaceName},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="fileCount != null">
+                file_count = #{fileCount},
+            </if>
+            <if test="usedSpace != null">
+                used_space = #{usedSpace},
+            </if>
+            <if test="totalSpace != null">
+                total_space = #{totalSpace},
+            </if>
+        </set>
+        WHERE space_id = #{spaceId}
+    </update>
+</mapper>

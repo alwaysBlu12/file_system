@@ -2,6 +2,7 @@ package com.tan.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.tan.dto.SaveSpaceDTO;
+import com.tan.dto.UpdateSpaceDTO;
 import com.tan.entity.EntityResult;
 import com.tan.entity.EntitySpace;
 import com.tan.mapper.MapperSpace;
@@ -56,6 +57,38 @@ public class ServiceSpaceImpl implements ServiceSpace {
         entitySpace.setFileCount(0);
         entitySpace.setCreateTime(LocalDateTime.now());
         mapperSpace.save(entitySpace);
+        return EntityResult.success();
+    }
+
+    /**
+     * 删除空间
+     *
+     * @param spaceId
+     * @return
+     */
+    @Override
+    public EntityResult deleteById(Integer spaceId) {
+        mapperSpace.deleteById(spaceId);
+
+        
+        //同时需要删除文件
+
+
+        return EntityResult.success();
+    }
+
+    /**
+     * 更新空间
+     *
+     * @param updateSpaceDTO
+     * @return
+     */
+    @Override
+    public EntityResult update(UpdateSpaceDTO updateSpaceDTO) {
+        EntitySpace entitySpace = new EntitySpace();
+        BeanUtil.copyProperties(updateSpaceDTO, entitySpace);
+        //复用update
+        mapperSpace.update(entitySpace);
         return EntityResult.success();
     }
 }

@@ -1,10 +1,7 @@
 package com.tan.mapper;
 
 import com.tan.entity.EntitySpace;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -17,7 +14,7 @@ public interface MapperSpace {
     @Select("select * from space where space_id=#{spaceId}")
     EntitySpace getBySpacecId(Integer spaceId);
 
-    @Update("update space set file_count=#{fileCount},used_space=#{usedSpace} where space_id=#{spaceId}")
+
     void update(EntitySpace fileSize);
 
     @Select("select * from space where user_id=#{userId}")
@@ -26,8 +23,8 @@ public interface MapperSpace {
     @Select("select * from space where space_id=#{spaceId}")
     EntitySpace getBySpaceId(Integer spaceId);
 
-    @Insert("insert into space (name, description, user_id, file_count, used_space, total_space, create_time) value " +
-            "(#{name},#{description},#{userId},#{fileCount},#{usedSpace},#{totalSpace},#{createTime})")
+    @Insert("insert into space (space_name, description, user_id, file_count, used_space, total_space, create_time) value " +
+            "(#{spaceName},#{description},#{userId},#{fileCount},#{usedSpace},#{totalSpace},#{createTime})")
     void save(EntitySpace entitySpace);
 
     /**
@@ -43,4 +40,7 @@ public interface MapperSpace {
      */
     @Update("update space set file_count=file_count+1,used_space=used_space+#{fileByte} where space_id=#{updateSpaceId}")
     void addFileCountAndSpace(Integer updateSpaceId,Long fileByte);
+
+    @Delete("delete from space where space_id=#{spaceId}")
+    void deleteById(Integer spaceId);
 }

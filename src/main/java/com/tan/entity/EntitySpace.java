@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 public class EntitySpace {
     private Integer spaceId;
-    private String name;
+    private String spaceName;
     private String description;
     private Integer userId;
     private Integer fileCount;
