@@ -1,5 +1,6 @@
 package com.tan.service;
 
+import com.tan.dto.PageFileDTO;
 import com.tan.dto.SaveFileDTO;
 import com.tan.dto.UpdateFileDTO;
 import com.tan.entity.EntityResult;
@@ -7,7 +8,7 @@ import com.tan.entity.PageBean;
 import com.tan.vo.FileListVO;
 
 public interface ServiceFile {
-    PageBean<FileListVO> list(Integer currentPage, Integer pageSize, String fileType, String fileName,Integer spaceId);
+    PageBean<FileListVO> list(PageFileDTO pageFileDTO);
 
     /**
      * 存储文件信息
@@ -17,11 +18,11 @@ public interface ServiceFile {
     EntityResult save(SaveFileDTO saveFileDTO);
 
     /**
-     * 删除文件
+     * 逻辑 删除文件
      * @param fileId
      * @return
      */
-    EntityResult deleteById(Integer fileId,Integer spaceId);
+    EntityResult deleteById(Integer fileId);
 
     /**
      * 查看文件

@@ -35,4 +35,9 @@ public class EntityFile {
      * 空间id
      */
     private Integer spaceId;
+
+    /**
+     * 0代表没有删除,1代表删除
+     */
+    private Integer isDelete;
 }

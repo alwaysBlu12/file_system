@@ -1,5 +1,6 @@
 package com.tan.controller;
 
+import com.tan.dto.PageFileDTO;
 import com.tan.dto.SaveFileDTO;
 import com.tan.dto.UpdateFileDTO;
 import com.tan.entity.EntityResult;
@@ -32,39 +33,30 @@ public class ControllerFile {
 
     /**
      * 获取文件列表
-     * @param currentPage
-     * @param pageSize
-     * @param fileType
-     * @param fileName
+     * @param pageFileDTO
      * @return
      */
-    @GetMapping("/list")
-    public EntityResult<PageBean<FileListVO>>list(
-            Integer currentPage,
-            Integer pageSize,
-            @RequestParam(required = false) String fileType,
-            @RequestParam(required = false)  String fileName,
-            Integer spaceId
-            ){
+    @PostMapping("/list")
+    public EntityResult<PageBean<FileListVO>>list(@RequestBody PageFileDTO pageFileDTO){
 
-        log.info("current:{},pageSize:{},fileType:{},fileName:{},spaceId:{}",currentPage,pageSize,fileType,fileName,spaceId);
+        log.info("pageFileDTO:{}",pageFileDTO);
 
-        PageBean<FileListVO> pageBean = serviceFile.list(currentPage,pageSize,fileType,fileName,spaceId);
+        PageBean<FileListVO> pageBean = serviceFile.list(pageFileDTO);
         return EntityResult.success(pageBean);
     }
 
     /**
-     * 删除文件
+     * 逻辑删除文件
      * @param fileId
      * @return
      */
     @DeleteMapping
-    public EntityResult deleteById(Integer fileId,Integer spaceId) {
-        return serviceFile.deleteById(fileId,spaceId);
+    public EntityResult deleteById(Integer fileId) {
+        return serviceFile.deleteById(fileId);
     }
 
     /**
-     * 查看文件详细信息
+     * 查看文件详细信息-->可以做共享文件
      * @param fileId
      * @return
      */

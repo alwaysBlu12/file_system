@@ -3,6 +3,7 @@ package com.tan.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.tan.dto.PageFileDTO;
 import com.tan.dto.SaveFileDTO;
 import com.tan.dto.UpdateFileDTO;
 import com.tan.entity.*;
@@ -71,19 +72,23 @@ public class ServiceFileImpl implements ServiceFile {
     }
 
     /**
-     * 删除文件
+     * 逻辑删除文件
      *
      * @param fileId
      * @return
      */
     @Override
-    public EntityResult deleteById(Integer fileId,Integer spaceId) {
-
-        log.info("-----------------打印参数:{}",fileId);
+    public EntityResult deleteById(Integer fileId) {
 
         //空间中的文件数要减少
         EntityFile file = mapperFile.getById(fileId);
-        mapperFile.deleteById(fileId);
+
+        //获取空间id
+        Integer spaceId = file.getSpaceId();
+
+        //将逻辑字段变为1
+        mapperFile.deleteLogic(fileId);
+
         //也是复用上了
         mapperSpace.subFileCountAndSpace(spaceId,FileUtils.convertToBytes(file.getFileSize()));
         return EntityResult.success();
@@ -113,18 +118,18 @@ public class ServiceFileImpl implements ServiceFile {
     @Override
     public EntityResult update(UpdateFileDTO updateFileDTO) {
 
-        Integer userId = UserThreadLocal.get().getUserId();
         //获取该文件
         Integer fileId = updateFileDTO.getFileId();
         EntityFile entityFile = mapperFile.getById(fileId);
         //当前空间
         Integer currentSpaceId = entityFile.getSpaceId();
+
+        //如果需要移动空间,entityFile里面就是新的空间
         BeanUtil.copyProperties(updateFileDTO, entityFile);
         entityFile.setUpdateTime(LocalDateTime.now());
 
         Integer updateSpaceId = updateFileDTO.getSpaceId();
         if (!currentSpaceId.equals(updateSpaceId)) {
-            //移动空间
 
             //获取当前文件的大小
             String fileSize = entityFile.getFileSize();
@@ -156,23 +161,20 @@ public class ServiceFileImpl implements ServiceFile {
 
     /**
      * 获取文件列表
-     * @param currentPage
-     * @param pageSize
-     * @param fileType
-     * @param fileName
+     * @param pageFileDTO
      * @return
      */
     @Override
-    public PageBean<FileListVO> list(Integer currentPage, Integer pageSize, String fileType, String fileName,Integer spaceId) {
+    public PageBean<FileListVO> list(PageFileDTO pageFileDTO) {
         PageBean<FileListVO> pageBean = new PageBean<>();
+
+        Integer currentPage = pageFileDTO.getCurrentPage();
+        Integer pageSize = pageFileDTO.getPageSize();
 
         PageHelper.startPage(currentPage, pageSize);
 
-        //获取当前用户
-        EntityUser user = UserThreadLocal.get();
-        Integer userId = user.getUserId();
 
-        List<FileListVO> data = mapperFile.list(userId,fileType,fileName,spaceId);
+        List<FileListVO> data = mapperFile.list(pageFileDTO);
         Page<FileListVO> page = (Page<FileListVO>) data;
 
         pageBean.setTotal(page.getTotal());
