@@ -9,7 +9,7 @@
             <if test="fileType!=null and fileType!=''">file_type=#{fileType}</if>
             <if test="fileName!=null and fileName!=''">and file_name like concat('%',#{fileName},'%')</if>
             <if test="spaceId!=null">and space_id=#{spaceId}</if>
-            and is_delete=#{isDelete}
+            and is_delete=#{isDelete} and user_id=#{userId}
         </where>
     </select>
 

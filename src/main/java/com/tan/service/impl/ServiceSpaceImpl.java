@@ -20,6 +20,10 @@ public class ServiceSpaceImpl implements ServiceSpace {
     @Resource
     private MapperSpace mapperSpace;
 
+    /**
+     * 空间列表
+     * @return
+     */
     @Override
     public EntityResult list() {
         Integer userId = UserThreadLocal.get().getUserId();

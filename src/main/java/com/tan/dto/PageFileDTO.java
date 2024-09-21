@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Data
 public class PageFileDTO {
+    private Integer userId;
     private Integer currentPage;
     private Integer pageSize;
     private String fileType;

@@ -37,7 +37,17 @@ public interface MapperFile {
      * 逻辑删除
      * @param fileId
      */
-    @Update("update file set is_delete=1 where file_id=#{fileId}")
+    @Update("update file set is_delete=1,update_time=now() where file_id=#{fileId}")
     void deleteLogic(Integer fileId);
+
+    @Select("select file_type from file where is_delete=1")
+    List<String> getRecycleFileTypes();
+
+    /**
+     * 恢复文件
+     * @param fileId
+     */
+    @Update("update file set is_delete=0 where file_id=#{fileId}")
+    void recycleFile(Integer fileId);
 }
 

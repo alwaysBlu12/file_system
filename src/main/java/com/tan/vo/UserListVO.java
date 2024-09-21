@@ -46,7 +46,6 @@ public class UserListVO {
      */
     private LocalDateTime updateTime;
 
-    private double percent;
 
     private Integer fileCount;
 }

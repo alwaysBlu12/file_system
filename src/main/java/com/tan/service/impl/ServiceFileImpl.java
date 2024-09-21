@@ -173,7 +173,8 @@ public class ServiceFileImpl implements ServiceFile {
 
         PageHelper.startPage(currentPage, pageSize);
 
-
+        Integer userId = UserThreadLocal.get().getUserId();
+        pageFileDTO.setUserId(userId);
         List<FileListVO> data = mapperFile.list(pageFileDTO);
         Page<FileListVO> page = (Page<FileListVO>) data;
 
