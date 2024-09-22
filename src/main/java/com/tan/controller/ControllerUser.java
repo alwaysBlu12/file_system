@@ -102,8 +102,19 @@ public class ControllerUser {
      * @return
      */
     @PutMapping("/updatePwd")
-    public EntityResult resetPassword(@RequestBody UpdatePwdDTO updatePwdDTO){
+    public EntityResult updatePassword(@RequestBody UpdatePwdDTO updatePwdDTO){
         return serviceUser.updatePwd(updatePwdDTO);
+    }
+
+
+    /**
+     * 重置密码
+     * @param resetPwdDTO
+     * @return
+     */
+    @PutMapping("/resetPwd")
+    public EntityResult resetPassword(@RequestBody ResetPwdDTO resetPwdDTO){
+        return serviceUser.resetPassword(resetPwdDTO);
     }
 
 }

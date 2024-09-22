@@ -21,4 +21,7 @@ public interface ServiceUser {
     EntityResult logout();
 
     EntityResult updatePwd(UpdatePwdDTO updatePwdDTO);
+
+
+    EntityResult resetPassword(ResetPwdDTO resetPwdDTO);
 }

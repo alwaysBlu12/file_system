@@ -49,5 +49,12 @@ public interface MapperFile {
      */
     @Update("update file set is_delete=0 where file_id=#{fileId}")
     void recycleFile(Integer fileId);
+
+    /**
+     * 删除空间中的全部文件
+     * @param spaceId
+     */
+    @Delete("delete from file where space_id=#{spaceId}")
+    void deleteBySpaceId(Integer spaceId);
 }
 

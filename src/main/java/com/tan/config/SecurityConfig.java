@@ -35,7 +35,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                         "/public/**",
                         "/email-code",
                         "/user/register",
-                        "/getImage/**" //访问静态资源
+                        "/getImage/**", //访问静态资源
+                        "/user/resetPwd"
                         );
     }
 

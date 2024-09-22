@@ -312,4 +312,41 @@ public class ServiceUserImpl implements ServiceUser {
         mapperUser.update(user);
         return EntityResult.success();
     }
+
+    /**
+     * 重置密码
+     * @param resetPwdDTO
+     * @return
+     */
+    @Override
+    public EntityResult resetPassword(ResetPwdDTO resetPwdDTO) {
+
+        //获取当前用户
+        String username = resetPwdDTO.getUsername();
+        EntityUser user = mapperUser.getUserByUsername(username);
+        if(user==null){
+            return EntityResult.error("用户不存在");
+        }
+
+        //获取redis邮箱验证码
+        String redisCode = stringRedisTemplate.opsForValue().get(resetPwdDTO.getEmail());
+
+        String resetCode = resetPwdDTO.getCode();
+
+        if(!redisCode.equals(resetCode)){
+            return EntityResult.error("验证码错误");
+        }
+
+        //验证码正确
+        String md5String = Md5Util.getMD5String(resetPwdDTO.getPassword());
+
+
+        //重置密码
+        user.setPassword(md5String);
+        user.setUpdateTime(LocalDateTime.now());
+        mapperUser.update(user);
+
+
+        return EntityResult.success();
+    }
 }

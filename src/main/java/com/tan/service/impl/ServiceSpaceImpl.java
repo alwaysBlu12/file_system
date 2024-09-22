@@ -5,6 +5,7 @@ import com.tan.dto.SaveSpaceDTO;
 import com.tan.dto.UpdateSpaceDTO;
 import com.tan.entity.EntityResult;
 import com.tan.entity.EntitySpace;
+import com.tan.mapper.MapperFile;
 import com.tan.mapper.MapperSpace;
 import com.tan.service.ServiceSpace;
 import com.tan.utils.UserThreadLocal;
@@ -19,6 +20,9 @@ public class ServiceSpaceImpl implements ServiceSpace {
 
     @Resource
     private MapperSpace mapperSpace;
+
+    @Resource
+    private MapperFile mapperFile;
 
     /**
      * 空间列表
@@ -74,9 +78,8 @@ public class ServiceSpaceImpl implements ServiceSpace {
     public EntityResult deleteById(Integer spaceId) {
         mapperSpace.deleteById(spaceId);
 
-        
         //同时需要删除文件
-
+        mapperFile.deleteBySpaceId(spaceId);
 
         return EntityResult.success();
     }

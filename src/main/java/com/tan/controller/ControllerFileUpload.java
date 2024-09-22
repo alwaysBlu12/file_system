@@ -9,9 +9,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static com.tan.utils.FileConstants.FILE_PATH;
@@ -29,38 +30,44 @@ public class ControllerFileUpload {
         }
 
         String originalName = file.getOriginalFilename();
-        //保证上传文件名唯一-->UUID拼接
+        // 保证上传文件名唯一-->UUID拼接
         String filename = UUID.randomUUID().toString() + originalName.substring(originalName.lastIndexOf("."));
         System.out.println(filename);
 
-
-//        // 指定本地存储路径
-//        String localPath = FILE_PATH; // 替换为你的本地文件夹路径
-//
-//        File localFile  = new File(localPath, filename);
-//
-//
-//        // 将文件存入本地
-//        try (
-//            FileOutputStream fos = new FileOutputStream(localFile)) {
-//            fos.write(file.getBytes());
-//        }
-//
-//        // 构建返回的URL（如果需要）
-//        String filePath = SERVER_FILE_PATH + filename;
-
-        //获取文件类型
-        String fileType = filename.substring(filename.lastIndexOf(".") + 1);
-        log.info("fileType:{}",fileType);
-        //获取文件大小
+        // 获取文件类型
+        String fileType = filename.substring(filename.lastIndexOf(".") + 1).toLowerCase();
+        log.info("fileType:{}", fileType);
+        // 获取文件大小
         long fileSizeBytes = file.getSize();
-        //String fileSize = FileUtils.convertFileSize(fileSizeBytes);
-        //这里就不转换单位了,统一单位存入数据库,后面方便计算,
-        log.info("fileSizeBytes:{}",fileSizeBytes);
-        //将文件存入阿里云
-        String url = AliOssUtil.uploadFile(filename, file.getInputStream());
-        //将url存入数据库
-        return EntityResult.success(new ResponseFile(filename,url,fileType,fileSizeBytes));
+        log.info("fileSizeBytes:{}", fileSizeBytes);
+
+        // 定义需要进行UTF-8编码处理的文本文件类型
+        List<String> textFileTypes = Arrays.asList("txt", "json", "md", "csv");
+
+        // 如果是纯文本文件，确保其以 UTF-8 编码上传
+        if (textFileTypes.contains(fileType)) {
+            InputStream inputStream = file.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+            StringBuilder content = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append("\n");
+            }
+            // 将内容转为 UTF-8 编码字节流上传
+            String url = AliOssUtil.uploadFile(filename, new ByteArrayInputStream(content.toString().getBytes(StandardCharsets.UTF_8)));
+            return EntityResult.success(new ResponseFile(filename, url, fileType, fileSizeBytes));
+        }
+
+        // 如果是二进制文件，如 PDF，直接上传二进制文件
+        List<String> binaryFileTypes = Arrays.asList("pdf", "xlsx", "docx");
+
+        if (binaryFileTypes.contains(fileType)) {
+            // 对于二进制文件，直接上传，绝不进行编码转换
+            String url = AliOssUtil.uploadFile(filename, file.getInputStream());
+            return EntityResult.success(new ResponseFile(filename, url, fileType, fileSizeBytes));
+        }
+
+        return EntityResult.error("不支持的文件类型");
     }
 
 }
