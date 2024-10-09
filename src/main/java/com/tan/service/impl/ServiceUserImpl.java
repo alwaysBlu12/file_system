@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.tan.utils.RedisConstants.REDIS_TIME;
 import static com.tan.utils.RedisConstants.REDIS_USER;
 
 @Slf4j
@@ -72,7 +73,7 @@ public class ServiceUserImpl implements ServiceUser {
         String token = JwtUtils.generateJwt(claims);
 
         //存入redis
-        stringRedisTemplate.opsForValue().set(REDIS_USER + user.getUserId(), token,30, TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set(REDIS_USER + user.getUserId(), token,REDIS_TIME, TimeUnit.MINUTES);
 //        log.info("登录成功:{}",token);
         return EntityResult.success(token);
     }
@@ -281,7 +282,6 @@ public class ServiceUserImpl implements ServiceUser {
         //删除redis
         log.info("rediscode:{}",REDIS_USER+user.getUserId());
         stringRedisTemplate.delete(REDIS_USER+user.getUserId());
-
         UserThreadLocal.remove();
         return EntityResult.success();
     }

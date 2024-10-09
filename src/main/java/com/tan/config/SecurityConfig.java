@@ -20,15 +20,18 @@ public class SecurityConfig implements WebMvcConfigurer {
      * 这里需要将两个变量传入拦截器中,不知道为啥在拦截器中自动注入不了
      */
 
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+//    @Autowired
+//    private StringRedisTemplate stringRedisTemplate;
+//
+//    @Autowired
+//    private MapperUser mapperUser;
 
     @Autowired
-    private MapperUser mapperUser;
+    private MyInterceptor myInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new MyInterceptor(mapperUser,stringRedisTemplate))
+        registry.addInterceptor(myInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/user/login",

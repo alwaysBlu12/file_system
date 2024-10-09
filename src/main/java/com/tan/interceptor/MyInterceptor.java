@@ -9,22 +9,29 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
+import static com.tan.utils.RedisConstants.REDIS_TIME;
 import static com.tan.utils.RedisConstants.REDIS_USER;
 
 @Slf4j
 @Component
 public class MyInterceptor implements HandlerInterceptor {
 
+
     private MapperUser mapperUser;
+
     private StringRedisTemplate stringRedisTemplate;
 
+    @Autowired
     public MyInterceptor(MapperUser mapperUser, StringRedisTemplate stringRedisTemplate) {
         this.mapperUser = mapperUser;
         this.stringRedisTemplate = stringRedisTemplate;
@@ -70,6 +77,10 @@ public class MyInterceptor implements HandlerInterceptor {
         EntityUser user = mapperUser.getUserById(Integer.valueOf(userId));
         log.info("user:{}", user);
         UserThreadLocal.put(user);
+
+        //刷新redis的时间
+        stringRedisTemplate.opsForValue().set(REDIS_USER+userId,token,REDIS_TIME, TimeUnit.MINUTES);
+
         return true;
     }
 
