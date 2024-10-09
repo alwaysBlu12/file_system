@@ -10,6 +10,7 @@
         <if test="updateTime!=null">update_time=#{updateTime},</if>
         <if test="avatarUrl!=null">avatar_url=#{avatarUrl},</if>
         <if test="password!=null">password=#{password},</if>
+        <if test="isAdmin!=null">is_admin=#{isAdmin},</if>
         </set>
         where user_id=#{userId}
     </update>

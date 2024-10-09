@@ -10,11 +10,12 @@ import com.tan.mapper.MapperSpace;
 import com.tan.service.ServiceSpace;
 import com.tan.utils.UserThreadLocal;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+@Slf4j
 @Service
 public class ServiceSpaceImpl implements ServiceSpace {
 
@@ -31,6 +32,7 @@ public class ServiceSpaceImpl implements ServiceSpace {
     @Override
     public EntityResult list() {
         Integer userId = UserThreadLocal.get().getUserId();
+        log.info("用户id:{}",userId);
         List<EntitySpace> list = mapperSpace.list(userId);
         return EntityResult.success(list);
     }

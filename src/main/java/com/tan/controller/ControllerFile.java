@@ -7,8 +7,11 @@ import com.tan.entity.EntityResult;
 import com.tan.entity.PageBean;
 import com.tan.service.ServiceFile;
 
+import com.tan.utils.MqConstants;
 import com.tan.vo.FileListVO;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,13 +24,19 @@ public class ControllerFile {
     private ServiceFile serviceFile;
 
 
+    @Resource
+    private RabbitTemplate rabbitTemplate;
+
+
     /**
      * 上传文件后进行保存
      * @return
      */
     @PostMapping
     public EntityResult saveFile(@RequestBody SaveFileDTO saveFileDTO) {
-        return serviceFile.save(saveFileDTO);
+        Integer fileId = serviceFile.save(saveFileDTO);
+        rabbitTemplate.convertAndSend(MqConstants.FILE_EXCHANGE, MqConstants.FILE_INSERT_KEY, fileId);
+        return EntityResult.success();
     }
 
 
@@ -37,10 +46,9 @@ public class ControllerFile {
      * @return
      */
     @PostMapping("/list")
-    public EntityResult<PageBean<FileListVO>>list(@RequestBody PageFileDTO pageFileDTO){
+    public EntityResult<PageBean<FileListVO>> list(@RequestBody PageFileDTO pageFileDTO) {
 
-        log.info("pageFileDTO:{}",pageFileDTO);
-
+        log.info("pageFileDTO:{}", pageFileDTO);
         PageBean<FileListVO> pageBean = serviceFile.list(pageFileDTO);
         return EntityResult.success(pageBean);
     }
@@ -52,7 +60,9 @@ public class ControllerFile {
      */
     @DeleteMapping
     public EntityResult deleteById(Integer fileId) {
-        return serviceFile.deleteById(fileId);
+        serviceFile.deleteById(fileId);
+        rabbitTemplate.convertAndSend(MqConstants.FILE_EXCHANGE, MqConstants.FILE_DELETE_KEY, fileId);
+        return EntityResult.success();
     }
 
     /**
@@ -70,8 +80,10 @@ public class ControllerFile {
      * @return
      */
     @PutMapping
-    public EntityResult update(@RequestBody UpdateFileDTO updateFileDTO){
-        return serviceFile.update(updateFileDTO);
+    public EntityResult update(@RequestBody UpdateFileDTO updateFileDTO) {
+        serviceFile.update(updateFileDTO);
+        rabbitTemplate.convertAndSend(MqConstants.FILE_EXCHANGE, MqConstants.FILE_INSERT_KEY, updateFileDTO.getFileId());
+        return EntityResult.success();
     }
 
 
@@ -85,6 +97,16 @@ public class ControllerFile {
         return serviceFile.getFileTypes(spaceId);
     }
 
+
+    /**
+     * 自动补全
+     * @param key
+     * @return
+     */
+    @GetMapping("/autocomplete")
+    public EntityResult autoComplete(@RequestParam("queryData") String key) {
+        return serviceFile.getCompleteResult(key);
+    }
 
 
 }

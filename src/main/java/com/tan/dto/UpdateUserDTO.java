@@ -8,4 +8,5 @@ public class UpdateUserDTO {
     private String username;
     private String email;
     private String avatarUrl;
+    private Integer isAdmin;
 }

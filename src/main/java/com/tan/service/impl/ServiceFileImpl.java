@@ -1,6 +1,7 @@
 package com.tan.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.tan.dto.PageFileDTO;
@@ -15,10 +16,23 @@ import com.tan.utils.UserThreadLocal;
 import com.tan.vo.FileListVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.search.suggest.Suggest;
+import org.elasticsearch.search.suggest.SuggestBuilder;
+import org.elasticsearch.search.suggest.SuggestBuilders;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +47,9 @@ public class ServiceFileImpl implements ServiceFile {
     @Resource
     private MapperSpace mapperSpace;
 
+    @Resource
+    private RestHighLevelClient client;
+
 
     /**
      * 存储文件信息
@@ -41,7 +58,7 @@ public class ServiceFileImpl implements ServiceFile {
      * @return
      */
     @Override
-    public EntityResult save(SaveFileDTO saveFileDTO) {
+    public Integer save(SaveFileDTO saveFileDTO) {
 
         Integer userId = UserThreadLocal.get().getUserId();
 
@@ -68,7 +85,9 @@ public class ServiceFileImpl implements ServiceFile {
         space.setFileCount(space.getFileCount() + 1);
         space.setUsedSpace(space.getUsedSpace() + saveFileDTO.getFileSize());
         mapperSpace.update(space);
-        return EntityResult.success();
+
+        //10.6号,返回文件id,给消息队列发消息
+        return entityFile.getFileId();
     }
 
     /**
@@ -78,7 +97,7 @@ public class ServiceFileImpl implements ServiceFile {
      * @return
      */
     @Override
-    public EntityResult deleteById(Integer fileId) {
+    public void deleteById(Integer fileId) {
 
         //空间中的文件数要减少
         EntityFile file = mapperFile.getById(fileId);
@@ -91,7 +110,7 @@ public class ServiceFileImpl implements ServiceFile {
 
         //也是复用上了
         mapperSpace.subFileCountAndSpace(spaceId,FileUtils.convertToBytes(file.getFileSize()));
-        return EntityResult.success();
+
     }
 
     /**
@@ -116,7 +135,7 @@ public class ServiceFileImpl implements ServiceFile {
      * @return
      */
     @Override
-    public EntityResult update(UpdateFileDTO updateFileDTO) {
+    public void update(UpdateFileDTO updateFileDTO) {
 
         //获取该文件
         Integer fileId = updateFileDTO.getFileId();
@@ -143,7 +162,6 @@ public class ServiceFileImpl implements ServiceFile {
 
         mapperFile.update(entityFile);
 
-        return EntityResult.success();
     }
 
     /**
@@ -157,6 +175,80 @@ public class ServiceFileImpl implements ServiceFile {
         List<String> list = mapperFile.getFileTypes(spaceId);
         Set<String> uniqueTypes = new HashSet<>(list); // 使用HashSet来自动去除重复项
         return EntityResult.success(uniqueTypes);
+    }
+
+    /**
+     * 自动补全
+     *
+     * @param key
+     * @return
+     */
+    @Override
+    public EntityResult getCompleteResult(String key) {
+        try {
+            //准备request对象
+            SearchRequest request = new SearchRequest("file");
+            //自动补全
+            request.source().suggest(new SuggestBuilder().addSuggestion("mySuggestion",
+                    SuggestBuilders
+                            .completionSuggestion("suggestion")
+                            .prefix(key)
+                            .skipDuplicates(false)
+                            .size(10)
+            ));
+            //发送请求
+            SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+            //解析结果
+            Suggest suggest = response.getSuggest();
+            CompletionSuggestion mySuggestion = suggest.getSuggestion("mySuggestion");
+            List<CompletionSuggestion.Entry.Option> options = mySuggestion.getOptions();
+            log.info("options:{}",options);
+            List<EntityFile> rs = new ArrayList<>();
+            for (CompletionSuggestion.Entry.Option option : options) {
+                //String result = option.getText().toString();
+                String sourceAsString = option.getHit().getSourceAsString();
+                //反序列化
+                EntityFile entityFile = JSON.parseObject(sourceAsString, EntityFile.class);
+                rs.add(entityFile);
+            }
+            return EntityResult.success(rs);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 新增或者更新文档
+     * @param fileId
+     */
+    @Override
+    public void insertOrUpdate(Integer fileId) {
+        try {
+            //获取文件
+            EntityFile entityFile = new EntityFile(mapperFile.getById(fileId));
+            //创建request对象
+            IndexRequest request = new IndexRequest("file").id(fileId.toString());
+            //准备参数
+            request.source(JSON.toJSONString(entityFile), XContentType.JSON);
+            //发送请求
+            client.index(request,RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 删除文档
+     * @param fileId
+     */
+    @Override
+    public void delete(Integer fileId) {
+        try {
+            DeleteRequest request = new DeleteRequest("file", fileId.toString());
+            client.delete(request,RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -177,6 +269,8 @@ public class ServiceFileImpl implements ServiceFile {
         pageFileDTO.setUserId(userId);
         List<FileListVO> data = mapperFile.list(pageFileDTO);
         Page<FileListVO> page = (Page<FileListVO>) data;
+
+
 
         pageBean.setTotal(page.getTotal());
         pageBean.setItems(page.getResult());

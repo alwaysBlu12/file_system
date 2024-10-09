@@ -3,6 +3,8 @@ package com.tan.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 文件实体类
@@ -40,4 +42,22 @@ public class EntityFile {
      * 0代表没有删除,1代表删除
      */
     private Integer isDelete;
+
+    private List<String> suggestion;
+
+    public EntityFile() {
+    }
+
+    public EntityFile(EntityFile entityFile) {
+        this.fileId = entityFile.getFileId();
+        this.fileName = entityFile.getFileName();
+        this.fileType = entityFile.getFileType();
+        this.userId = entityFile.getUserId();
+        this.fileSize = entityFile.getFileSize();
+        this.updateTime = entityFile.getUpdateTime();
+        this.filePath = entityFile.getFilePath();
+        this.spaceId = entityFile.getSpaceId();
+        this.isDelete = entityFile.getIsDelete();
+        this.suggestion = Arrays.asList(this.fileName,this.fileType);
+    }
 }

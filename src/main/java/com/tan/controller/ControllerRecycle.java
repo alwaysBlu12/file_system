@@ -2,7 +2,9 @@ package com.tan.controller;
 
 import com.tan.entity.EntityResult;
 import com.tan.service.ServiceRecycle;
+import com.tan.utils.MqConstants;
 import jakarta.annotation.Resource;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.swing.text.html.parser.Entity;
@@ -13,6 +15,9 @@ public class ControllerRecycle {
 
     @Resource
     private ServiceRecycle serviceRecycle;
+
+    @Resource
+    private RabbitTemplate rabbitTemplate;
 
     /**
      * 永久删除
@@ -41,7 +46,9 @@ public class ControllerRecycle {
      */
     @GetMapping
     public EntityResult recycleFile(@RequestParam("fileId") Integer fileId){
-        return serviceRecycle.recycleFile(fileId);
+        serviceRecycle.recycleFile(fileId);
+        rabbitTemplate.convertAndSend(MqConstants.FILE_EXCHANGE, MqConstants.FILE_INSERT_KEY, fileId);
+        return EntityResult.success();
     }
 
 }

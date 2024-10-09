@@ -13,7 +13,7 @@ import java.util.Map;
 public class JwtUtils {
 
     private static String signKey = "always";//密钥
-    private static Long expire = 43200000L;//1个小时,这里的单位是毫秒
+    private static Long expire = 43200000L;//12个小时,这里的单位是毫秒
 
     /**
      * 生成JWT令牌

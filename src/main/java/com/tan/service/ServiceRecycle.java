@@ -22,5 +22,5 @@ public interface ServiceRecycle {
      * @param fileId
      * @return
      */
-    EntityResult recycleFile(Integer fileId);
+    void recycleFile(Integer fileId);
 }

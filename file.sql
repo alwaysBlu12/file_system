@@ -1,7 +1,7 @@
 -- 创建数据库
 create datebase file_system;
 
-use datebase;
+use file_system;
 
 -- 用户表
 CREATE TABLE user (
@@ -24,6 +24,7 @@ CREATE TABLE file (
                        file_size BIGINT NOT NULL,
                        upload_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                        file_path VARCHAR(255) NOT NULL,
+                        is_delete int ,
                        FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
 

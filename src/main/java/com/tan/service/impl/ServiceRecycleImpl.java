@@ -53,7 +53,7 @@ public class ServiceRecycleImpl implements ServiceRecycle {
      * @return
      */
     @Override
-    public EntityResult recycleFile(Integer fileId) {
+    public void recycleFile(Integer fileId) {
         //空间中的文件数要增加
         EntityFile file = mapperFile.getById(fileId);
 
@@ -65,6 +65,6 @@ public class ServiceRecycleImpl implements ServiceRecycle {
 
         //也是复用上了
         mapperSpace.addFileCountAndSpace(spaceId, FileUtils.convertToBytes(file.getFileSize()));
-        return EntityResult.success();
+
     }
 }

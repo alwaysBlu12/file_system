@@ -15,14 +15,14 @@ public interface ServiceFile {
      * @param saveFileDTO
      * @return
      */
-    EntityResult save(SaveFileDTO saveFileDTO);
+    Integer save(SaveFileDTO saveFileDTO);
 
     /**
      * 逻辑 删除文件
      * @param fileId
      * @return
      */
-    EntityResult deleteById(Integer fileId);
+    void deleteById(Integer fileId);
 
     /**
      * 查看文件
@@ -36,7 +36,7 @@ public interface ServiceFile {
      * @param updateFileDTO
      * @return
      */
-    EntityResult update(UpdateFileDTO updateFileDTO);
+    void update(UpdateFileDTO updateFileDTO);
 
     /**
      * 获取文件分类
@@ -44,4 +44,15 @@ public interface ServiceFile {
      * @return
      */
     EntityResult getFileTypes(Integer spaceId);
+
+    /**
+     * 自动补全
+     * @param key
+     * @return
+     */
+    EntityResult getCompleteResult(String key);
+
+    void insertOrUpdate(Integer fileId);
+
+    void delete(Integer fileId);
 }

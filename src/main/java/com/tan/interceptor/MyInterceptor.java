@@ -35,7 +35,7 @@ public class MyInterceptor implements HandlerInterceptor {
 
 
         log.info("'拦截到了");
-
+        System.out.println(request.getRequestURI());
         //获取请求头的token
         String token = request.getHeader("Authorization");
         log.info("token:{}", token);
@@ -43,9 +43,7 @@ public class MyInterceptor implements HandlerInterceptor {
         if(Objects.isNull(token)){
             System.out.println("当前token为空");
             response.setStatus(401);
-//            throw new RuntimeException("当前未登录");
-
-            response.getWriter().write("萨啊实打实对阿斯顿达");
+            response.getWriter().write("xxx");
             return false;
         }
 
@@ -55,8 +53,14 @@ public class MyInterceptor implements HandlerInterceptor {
         //获取redis的token
         String redisToken = stringRedisTemplate.opsForValue().get(REDIS_USER+userId);
 
-        log.info("redisToken:{}", redisToken);
-        if(!redisToken.equals(token)||redisToken==null){
+        // 判断redisToken是否存在
+        if (redisToken == null) {
+            response.setStatus(401);
+            throw new RuntimeException("当前token失效");
+        }
+
+        // 判断redisToken与请求中的token是否一致
+        if (!redisToken.equals(token)) {
             response.setStatus(401);
             throw new RuntimeException("当前token失效");
         }

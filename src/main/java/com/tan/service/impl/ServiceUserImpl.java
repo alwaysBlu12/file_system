@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static com.tan.utils.RedisConstants.REDIS_USER;
 
@@ -71,7 +72,7 @@ public class ServiceUserImpl implements ServiceUser {
         String token = JwtUtils.generateJwt(claims);
 
         //存入redis
-        stringRedisTemplate.opsForValue().set(REDIS_USER + user.getUserId(), token);
+        stringRedisTemplate.opsForValue().set(REDIS_USER + user.getUserId(), token,30, TimeUnit.MINUTES);
 //        log.info("登录成功:{}",token);
         return EntityResult.success(token);
     }
@@ -130,7 +131,7 @@ public class ServiceUserImpl implements ServiceUser {
         mapperUser.save(user1);
         //返回主键值
         //log.info("返回主键:{}",user1.getUserId());
-        createSpace(user1.getUserId());
+//        createSpace(user1.getUserId());
 
         return EntityResult.success();
 
@@ -223,10 +224,10 @@ public class ServiceUserImpl implements ServiceUser {
      */
     @Override
     public EntityResult update(UpdateUserDTO updateUserDTO) {
-        EntityUser user = new EntityUser();
-        BeanUtils.copyProperties(updateUserDTO,user);
+        EntityUser user = UserThreadLocal.get();
+//        BeanUtils.copyProperties(updateUserDTO,user);
+        user.setAvatarUrl(updateUserDTO.getAvatarUrl());
         user.setUpdateTime(LocalDateTime.now());
-        user.setUserId(UserThreadLocal.get().getUserId());
         mapperUser.update(user);
         return EntityResult.success();
     }
