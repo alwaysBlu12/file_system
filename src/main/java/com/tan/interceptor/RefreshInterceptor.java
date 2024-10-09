@@ -9,8 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -24,7 +22,7 @@ import static com.tan.utils.RedisConstants.REDIS_USER;
 
 @Slf4j
 @Component
-public class MyInterceptor implements HandlerInterceptor {
+public class RefreshInterceptor implements HandlerInterceptor {
 
 
     private MapperUser mapperUser;
@@ -32,7 +30,7 @@ public class MyInterceptor implements HandlerInterceptor {
     private StringRedisTemplate stringRedisTemplate;
 
     @Autowired
-    public MyInterceptor(MapperUser mapperUser, StringRedisTemplate stringRedisTemplate) {
+    public RefreshInterceptor(MapperUser mapperUser, StringRedisTemplate stringRedisTemplate) {
         this.mapperUser = mapperUser;
         this.stringRedisTemplate = stringRedisTemplate;
     }
@@ -48,10 +46,7 @@ public class MyInterceptor implements HandlerInterceptor {
         log.info("token:{}", token);
         //判断token
         if(Objects.isNull(token)){
-            System.out.println("当前token为空");
-            response.setStatus(401);
-            response.getWriter().write("xxx");
-            return false;
+            return true;
         }
 
         //解析token
@@ -62,14 +57,12 @@ public class MyInterceptor implements HandlerInterceptor {
 
         // 判断redisToken是否存在
         if (redisToken == null) {
-            response.setStatus(401);
-            throw new RuntimeException("当前token失效");
+           return true;
         }
 
         // 判断redisToken与请求中的token是否一致
         if (!redisToken.equals(token)) {
-            response.setStatus(401);
-            throw new RuntimeException("当前token失效");
+           return true;
         }
 
         //获取当前用户

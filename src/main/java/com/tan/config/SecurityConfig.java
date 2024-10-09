@@ -1,10 +1,9 @@
 package com.tan.config;
 
-import com.tan.interceptor.MyInterceptor;
-import com.tan.mapper.MapperUser;
+import com.tan.interceptor.LoginInterceptor;
+import com.tan.interceptor.RefreshInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -27,11 +26,11 @@ public class SecurityConfig implements WebMvcConfigurer {
 //    private MapperUser mapperUser;
 
     @Autowired
-    private MyInterceptor myInterceptor;
+    private RefreshInterceptor refreshInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(myInterceptor)
+        registry.addInterceptor(new LoginInterceptor())
                 .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/user/login",
@@ -40,7 +39,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                         "/user/register",
                         "/getImage/**", //访问静态资源
                         "/user/resetPwd"
-                        );
+                        ).order(1);
+        registry.addInterceptor(refreshInterceptor).addPathPatterns("/**").order(0);
     }
 
 }
