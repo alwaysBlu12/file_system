@@ -40,7 +40,10 @@ public class SecurityConfig implements WebMvcConfigurer {
                         "/getImage/**", //访问静态资源
                         "/user/resetPwd"
                         ).order(1);
-        registry.addInterceptor(refreshInterceptor).addPathPatterns("/**").order(0);
+        registry.addInterceptor(refreshInterceptor)
+                .excludePathPatterns("/public/**")
+                .addPathPatterns("/**")
+                .order(0);
     }
 
 }

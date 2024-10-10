@@ -180,19 +180,22 @@ public class ServiceFileImpl implements ServiceFile {
     /**
      * 自动补全
      *
-     * @param key
+     * @param
      * @return
      */
     @Override
-    public EntityResult getCompleteResult(String key) {
+    public EntityResult getCompleteResult(String fileName,Integer spaceId) {
         try {
+            //获取用户信息
+            EntityUser user = UserThreadLocal.get();
+
             //准备request对象
-            SearchRequest request = new SearchRequest("file");
+            SearchRequest request = new SearchRequest(user.getUserId()+"_"+spaceId);
             //自动补全
             request.source().suggest(new SuggestBuilder().addSuggestion("mySuggestion",
                     SuggestBuilders
                             .completionSuggestion("suggestion")
-                            .prefix(key)
+                            .prefix(fileName)
                             .skipDuplicates(false)
                             .size(10)
             ));
@@ -202,7 +205,7 @@ public class ServiceFileImpl implements ServiceFile {
             Suggest suggest = response.getSuggest();
             CompletionSuggestion mySuggestion = suggest.getSuggestion("mySuggestion");
             List<CompletionSuggestion.Entry.Option> options = mySuggestion.getOptions();
-            log.info("options:{}",options);
+
             List<EntityFile> rs = new ArrayList<>();
             for (CompletionSuggestion.Entry.Option option : options) {
                 //String result = option.getText().toString();
@@ -224,10 +227,14 @@ public class ServiceFileImpl implements ServiceFile {
     @Override
     public void insertOrUpdate(Integer fileId) {
         try {
+
             //获取文件
             EntityFile entityFile = new EntityFile(mapperFile.getById(fileId));
+            //在这条异步线程中不能调用UserThreadLocal-->通过文件获取用户信息
+            Integer spaceId = entityFile.getSpaceId();
+            Integer userId = entityFile.getUserId();
             //创建request对象
-            IndexRequest request = new IndexRequest("file").id(fileId.toString());
+            IndexRequest request = new IndexRequest(userId+"_"+spaceId).id(fileId.toString());
             //准备参数
             request.source(JSON.toJSONString(entityFile), XContentType.JSON);
             //发送请求
@@ -244,7 +251,12 @@ public class ServiceFileImpl implements ServiceFile {
     @Override
     public void delete(Integer fileId) {
         try {
-            DeleteRequest request = new DeleteRequest("file", fileId.toString());
+            //获取文件
+            EntityFile entityFile = new EntityFile(mapperFile.getById(fileId));
+            //在这条异步线程中不能调用UserThreadLocal-->通过文件获取用户信息
+            Integer spaceId = entityFile.getSpaceId();
+            Integer userId = entityFile.getUserId();
+            DeleteRequest request = new DeleteRequest(userId+"_"+spaceId, fileId.toString());
             client.delete(request,RequestOptions.DEFAULT);
         } catch (IOException e) {
             throw new RuntimeException(e);

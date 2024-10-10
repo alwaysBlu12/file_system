@@ -23,6 +23,7 @@ public interface MapperSpace {
     @Select("select * from space where space_id=#{spaceId}")
     EntitySpace getBySpaceId(Integer spaceId);
 
+    @Options(useGeneratedKeys = true, keyProperty = "spaceId")
     @Insert("insert into space (space_name, description, user_id, file_count, used_space, total_space, create_time) value " +
             "(#{spaceName},#{description},#{userId},#{fileCount},#{usedSpace},#{totalSpace},#{createTime})")
     void save(EntitySpace entitySpace);

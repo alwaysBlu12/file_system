@@ -100,13 +100,18 @@ public class ControllerFile {
 
     /**
      * 自动补全
-     * @param key
+     * @param
      * @return
      */
     @GetMapping("/autocomplete")
-    public EntityResult autoComplete(@RequestParam("queryData") String key) {
-        return serviceFile.getCompleteResult(key);
+    public EntityResult autoComplete(
+            @RequestParam String fileName,
+            @RequestParam Integer spaceId
+    ) {
+        return serviceFile.getCompleteResult(fileName,spaceId);
     }
+
+
 
 
 }

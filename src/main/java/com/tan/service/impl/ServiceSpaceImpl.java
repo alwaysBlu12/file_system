@@ -8,11 +8,17 @@ import com.tan.entity.EntitySpace;
 import com.tan.mapper.MapperFile;
 import com.tan.mapper.MapperSpace;
 import com.tan.service.ServiceSpace;
+import com.tan.utils.ElasticSearchConstant;
 import com.tan.utils.UserThreadLocal;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 @Slf4j
@@ -25,6 +31,9 @@ public class ServiceSpaceImpl implements ServiceSpace {
     @Resource
     private MapperFile mapperFile;
 
+    @Resource
+    private RestHighLevelClient client;
+
     /**
      * 空间列表
      * @return
@@ -32,7 +41,7 @@ public class ServiceSpaceImpl implements ServiceSpace {
     @Override
     public EntityResult list() {
         Integer userId = UserThreadLocal.get().getUserId();
-        log.info("用户id:{}",userId);
+
         List<EntitySpace> list = mapperSpace.list(userId);
         return EntityResult.success(list);
     }
@@ -60,6 +69,7 @@ public class ServiceSpaceImpl implements ServiceSpace {
         BeanUtil.copyProperties(saveSpaceDTO, entitySpace);
         //用户id
         Integer userId = UserThreadLocal.get().getUserId();
+
         entitySpace.setUserId(userId);
         //默认生成一个10Mb的空间,单位是字节
         entitySpace.setTotalSpace(10000000L);
@@ -67,6 +77,21 @@ public class ServiceSpaceImpl implements ServiceSpace {
         entitySpace.setFileCount(0);
         entitySpace.setCreateTime(LocalDateTime.now());
         mapperSpace.save(entitySpace);
+
+        //创建对应空间的索引库
+
+        try {
+            //创建request对象
+            CreateIndexRequest request = new CreateIndexRequest(userId + "_" + entitySpace.getSpaceId());
+            //准备参数
+            request.source(ElasticSearchConstant.AUTO_COMPLETE, XContentType.JSON);
+            //发送请求
+            client.indices().create(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
         return EntityResult.success();
     }
 

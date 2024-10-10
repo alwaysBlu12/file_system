@@ -56,5 +56,6 @@ public interface MapperFile {
      */
     @Delete("delete from file where space_id=#{spaceId}")
     void deleteBySpaceId(Integer spaceId);
+
 }
 

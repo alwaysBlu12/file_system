@@ -47,10 +47,10 @@ public interface ServiceFile {
 
     /**
      * 自动补全
-     * @param key
+     * @param
      * @return
      */
-    EntityResult getCompleteResult(String key);
+    EntityResult getCompleteResult(String fileName,Integer spaceId);
 
     void insertOrUpdate(Integer fileId);
 
