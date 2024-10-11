@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tan.mapper.MapperShare">
+
+<!--    联表查询共享文件信息-->
+    <select id="getByShareInfo" resultType="com.tan.vo.ShareFileVO">
+        select f.file_id,f.file_name,f.file_path,f.file_size,f.file_type,s.share_id,s.expiry_time,s.user_id
+        from file f left join share s on s.file_id=f.file_id
+        where s.share_id = #{shareId}
+    </select>
+</mapper>

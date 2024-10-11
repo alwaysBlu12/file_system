@@ -2,6 +2,7 @@ package com.tan.mapper;
 
 import com.tan.dto.PageFileDTO;
 import com.tan.entity.EntityFile;
+import com.tan.entity.EntityShare;
 import com.tan.vo.FileListVO;
 import org.apache.ibatis.annotations.*;
 

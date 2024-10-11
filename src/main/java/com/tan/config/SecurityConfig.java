@@ -38,7 +38,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                         "/email-code",
                         "/user/register",
                         "/getImage/**", //访问静态资源
-                        "/user/resetPwd"
+                        "/user/resetPwd",
+                        "/share/**"
                         ).order(1);
         registry.addInterceptor(refreshInterceptor)
                 .excludePathPatterns("/public/**")

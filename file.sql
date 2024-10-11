@@ -79,3 +79,16 @@ CREATE TABLE system_capacity_usage (
                                        remaining_capacity_gb FLOAT
 );
 
+
+CREATE TABLE share(
+                      id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                      share_id VARCHAR(255) NOT NULL UNIQUE,  -- 唯一的分享ID
+                      file_id INT NOT NULL,                -- 关联的文件ID
+                      user_id INT NOT NULL,                -- 生成分享链接的用户ID
+                      file_password VARCHAR(50) NOT NULL,  -- 密码
+                      share_link VARCHAR(100) NOT NULL,  -- 分享链接
+                      expiry_time DATETIME NOT NULL,          -- 分享的过期日期
+                      create_time DATETIME NOT NULL,         -- 分享创建日期
+                      FOREIGN KEY (file_id) REFERENCES file(file_id),  -- 文件表的外键约束
+                      FOREIGN KEY (user_id) REFERENCES user(user_id)   -- 用户表的外键约束
+);
